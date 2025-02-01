@@ -17,7 +17,7 @@ class FirebaseUserRepository implements UserRepository {
     final data = userDoc .data()!;
     return UserEntity(
       username: data['username'] ?? 'Not Available',
-      email: data['email'] ?? 'Not Available',
+      email: data['email'] ?? 'Not Available', phone:data['phone']?? 'Not Available',
     );
       
     } catch (e) {

@@ -2,8 +2,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:secondproject/features/home_logout/domain/usecases/logout.dart';
-import 'package:secondproject/features/home_logout/presentation/bloc/auth_event.dart';
-import 'package:secondproject/features/home_logout/presentation/bloc/auth_state.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/auth/auth_event.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/auth/auth_state.dart';
 
 
 

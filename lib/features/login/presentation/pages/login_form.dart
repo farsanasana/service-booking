@@ -20,90 +20,92 @@ final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
  
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      margin: EdgeInsets.all(20),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Sign In", style: TextStyle(fontSize: 28,fontWeight: FontWeight.w900),),
-            SizedBox(height: 20,),
-             Text.rich(
-                TextSpan(
-                  children: [
-                  
-                    TextSpan(
-                      text:
-                          'Your trusted home service partner in just a login away.',
-                      style: TextStyle(fontSize: 18),
-                    ),
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        margin: EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Sign In", style: TextStyle(fontSize: 28,fontWeight: FontWeight.w900),),
+              SizedBox(height: 20,),
+               Text.rich(
+                  TextSpan(
+                    children: [
+                    
                       TextSpan(
-                      text: 'Welcome back! ',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: ColorSys.secoundry,
-                        fontWeight: FontWeight.w700,
+                        text:
+                            'Your trusted home service partner in just a login away.',
+                        style: TextStyle(fontSize: 18),
                       ),
-                    ),
-                  ],
+                        TextSpan(
+                        text: 'Welcome back! ',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: ColorSys.secoundry,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-               SizedBox(height: 20,),
-            reusableTextField("Enter UserName", Icons.person, false, emailController,validator: (value){if (value==null||value.isEmpty) {
-              return 'Please Enter Your Email Or UserName';
-            }else if(!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)){return 'Please Enter a valid Input';}
-            return null;
-            }),
-            SizedBox(height: 20),
-            reusableTextField("Enter Password", Icons.lock_outline, true, passwordController,validator: (value){if (value==null||value.isEmpty) {return 'please enter your password';
+                 SizedBox(height: 20,),
+              reusableTextField("Enter UserName", Icons.person, false, emailController,validator: (value){if (value==null||value.isEmpty) {
+                return 'Please Enter Your Email Or UserName';
+              }else if(!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)){return 'Please Enter a valid Input';}
+       
+              }),
+              SizedBox(height: 20),
+              reusableTextField("Enter Password", Icons.lock_outline, true, passwordController,validator: (value){if (value==null||value.isEmpty) {return 'please enter your password';
+                
+              }else if(value.length<6){return 'Password must be at least 6 characters'; }
+              return null;}),
+              SizedBox(height: 20),
+              Align(
+                alignment: Alignment.topLeft,
+                child: InkWell
+                (
+                  onTap: () => Navigator.pushNamed(context, '/forget_pass'),
+                  child: Text('Forget Password?',style: TextStyle(color: ColorSys.secoundry,fontSize: 16,fontWeight: FontWeight.w600),))), SizedBox(height: 20),
+          
+              CustomButton(context, "Sign In", () {
+      if (_formKey.currentState!.validate()) {
+        BlocProvider.of<LoginBloc>(context).add(
+                  LoginRequested(
+                    emailController.text,
+                    passwordController.text,
+                  ),
+                );
+      }
+                
+              }), SizedBox(height: 10,),
+                  Text('Or'),
+                  SizedBox(height: 20,),
+                  BlocConsumer<GoogleSignInBloc, GoogleSignInState>(
+                    listener: (context, state) {
+                      if (state is GoogleSignInFailure) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.error)),);
+                      }
+                      if (state is GoogleSignInSuccess) {
+                        Navigator.pushNamed(context, '/home');
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is GoogleSignInLoading) {
+                        return const CircularProgressIndicator();
+                      }
+                      return CustomGoogleButton(context, " Sign in with Google", (){
+                        context.read<GoogleSignInBloc>().add(GoogleSignInRequested());
+                      });
+                    },
+                  ),
               
-            }else if(value.length<6){return 'Password must be at least 6 characters'; }
-            return null;}),
-            SizedBox(height: 20),
-            Align(
-              alignment: Alignment.topLeft,
-              child: InkWell
-              (
-                onTap: () => Navigator.pushNamed(context, '/forget_pass'),
-                child: Text('Forget Password?',style: TextStyle(color: ColorSys.secoundry,fontSize: 16,fontWeight: FontWeight.w600),))), SizedBox(height: 20),
-        
-            CustomButton(context, "Sign In", () {
-if (_formKey.currentState!.validate()) {
-  BlocProvider.of<LoginBloc>(context).add(
-                LoginRequested(
-                  emailController.text,
-                  passwordController.text,
-                ),
-              );
-}
-              
-            }), SizedBox(height: 10,),
-                Text('Or'),
-                SizedBox(height: 20,),
-                BlocConsumer<GoogleSignInBloc, GoogleSignInState>(
-                  listener: (context, state) {
-                    if (state is GoogleSignInFailure) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.error)),);
-                    }
-                    if (state is GoogleSignInSuccess) {
-                      Navigator.pushNamed(context, '/home');
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is GoogleSignInLoading) {
-                      return const CircularProgressIndicator();
-                    }
-                    return CustomGoogleButton(context, " Sign in with Google", (){
-                      context.read<GoogleSignInBloc>().add(GoogleSignInRequested());
-                    });
-                  },
-                ),
-            
-            SizedBox(height: 25.0),
-            signUpOption(context),
-          ],
+              SizedBox(height: 25.0),
+              signUpOption(context),
+            ],
+          ),
         ),
       ),
     );

@@ -11,8 +11,11 @@ import 'package:secondproject/features/Profile/presentation/pages/profile_screen
 import 'package:secondproject/features/google/google_sign_in/google_sign_in_bloc.dart';
 import 'package:secondproject/features/google/repositories_google_services.dart';
 import 'package:secondproject/features/home_logout/domain/repositories/auth_repository.dart';
+import 'package:secondproject/features/home_logout/domain/repositories/service_repository.dart';
+import 'package:secondproject/features/home_logout/domain/repositories/services_repository_impl.dart';
 import 'package:secondproject/features/home_logout/domain/usecases/logout.dart';
-import 'package:secondproject/features/home_logout/presentation/bloc/auth_bloc.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/auth/auth_bloc.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/service/service_bloc.dart';
 import 'package:secondproject/features/home_logout/presentation/pages/home-page.dart';
 import 'package:secondproject/features/home_navigation/presentation/bloc/navigation_bloc.dart';
 import 'package:secondproject/features/login/data/repositories/auth_repository_impl.dart';
@@ -24,6 +27,7 @@ import 'package:secondproject/features/onborading/presention/pages/onboarding_pa
 import 'package:secondproject/features/signup/data/repositories/firebase_signup_repository.dart';
 import 'package:secondproject/features/signup/domain/entities/repositories/signup_repository.dart';
 import 'package:secondproject/features/signup/domain/usecases/signup_user.dart';
+import 'package:secondproject/features/signup/presentation/bloc/profileic/bloc/profile_pic_bloc.dart';
 import 'package:secondproject/features/signup/presentation/bloc/signup_bloc.dart';
 import 'package:secondproject/features/signup/presentation/page/signup-page.dart';
 
@@ -37,7 +41,7 @@ void main() async {
 
   // Initialize repositories
   final authenticationRepository  = AuthenticationRepository(firebaseAuth); // Correct repository
- final signUpRepository = FirebaseSignupRepository(firebaseAuth, firebaseStore);
+ final signUpRepository = FirebaseSignupRepository(firebaseAuth,firebaseStore);
   final logoutRepository = LogoutRepository();
   final userRepository = FirebaseUserRepository(firebaseStore);
 
@@ -52,7 +56,7 @@ final logoutUseCase = LogoutUseCase(logoutRepository);
     loginUseCase: loginUseCase,
    signupUseCase: signupUseCase,
     logoutUseCase: logoutUseCase,  
-    getUserProfile:getUserProfile  
+    getUserProfile:getUserProfile  , firestore: firebaseStore,  
   ));
 }
 
@@ -61,47 +65,59 @@ class MyApp extends StatelessWidget {
    final SignupUser signupUseCase;
   final LogoutUseCase logoutUseCase;
   final GetUserProfile getUserProfile;
-  
+    final FirebaseFirestore firestore; 
 
   const MyApp({
     super.key,
     required this.loginUseCase,
     required this.signupUseCase,
     required this.logoutUseCase,
-    required this.getUserProfile,
+    required this.getUserProfile, 
+    required this. firestore,
     
   });
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
-          Provider<GetUserProfile>.value(value: getUserProfile),
-
-        BlocProvider(create: (_) => LoginBloc(loginUseCase)),
- BlocProvider(create: (_) => SignupBloc(signupUseCase)),   
-      BlocProvider(create: (_) => LogoutBloc(logoutUseCase)),
-        BlocProvider(create: (_) => GoogleSignInBloc(GoogleSignInService())),
-        BlocProvider(create: (_)=>ProfileBloc(getUserProfile)),
-        // BlocProvider(
-        //   create: (context) => ProfileBloc(getUserProfile),         
-        // ),
-      
-          BlocProvider(create: (_) => NavigationBloc()),
-          
-        
+        RepositoryProvider<ServicesRepository>(create: (context)=>ServicesRepositoryImpl(firestore),)
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: '/onboarding',
-        routes: {
-          '/onboarding': (context) => const OnboardingPage(),
-          '/login': (context) => LoginPage(),
-          '/signup': (context) => SignupPage(),
-          '/home': (context) => HomePage(),
-          '/profile':(context)=>ProfilePage(),
-          '/forget_pass':(context)=>ForgotPassword(),
-        },
+      child: MultiBlocProvider(
+        providers: [
+            Provider<GetUserProfile>.value(value: getUserProfile),
+      
+          BlocProvider(create: (_) => LoginBloc(loginUseCase)),
+       BlocProvider(create: (_) => SignupBloc(signupUseCase)),   
+        BlocProvider(create: (_) => LogoutBloc(logoutUseCase)),
+          BlocProvider(create: (_) => GoogleSignInBloc(GoogleSignInService())),
+          BlocProvider(create: (_)=>ProfileBloc(getUserProfile)),
+          // BlocProvider(
+          //   create: (context) => ProfileBloc(getUserProfile),         
+          // ),
+          BlocProvider(
+            create: (context) => ServicesBloc(context.read<ServicesRepository>())),
+          
+          BlocProvider(
+            create: (context) => ImageBloc(),),
+           
+        
+            BlocProvider(create: (_) => NavigationBloc()),
+            // RepositoryProvider<HomeRepository>(create: (_) => HomeRepository()),
+          
+        ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          initialRoute: '/onboarding',
+          routes: {
+            '/onboarding': (context) => const OnboardingPage(),
+            '/login': (context) => LoginPage(),
+            '/signup': (context) => SignupPage(),
+            '/home': (context) => HomePage(),
+            '/profile':(context)=>ProfilePage(),
+            '/forget_pass':(context)=>ForgotPassword(),
+          },
+        ),
       ),
     );
   }

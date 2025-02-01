@@ -13,11 +13,13 @@ class FirebaseUserProfileRepository {
     if (user != null) {
       // Get user data from Firestore
       DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
-
+ final userData = userDoc.data() as Map<String, dynamic>? ?? {};
       // Return email and username
       return {
         'email': user.email!,
         'username': userDoc['username'] ?? 'No Username Set',
+        'number':userDoc['number']??'no number set',
+        'imageUrl': userData['imageUrl'] ?? 'assets/images/user.png',
       };
     }
 
