@@ -1,6 +1,3 @@
-
-
-
 import 'package:secondproject/features/home_logout/domain/entities/category.dart';
 import 'package:secondproject/features/home_logout/domain/entities/service.dart';
 
@@ -26,4 +23,5 @@ class ServicesError extends ServicesState {
   final String message;
 
   ServicesError(this.message);
+  
 }

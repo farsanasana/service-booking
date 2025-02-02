@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:secondproject/features/home_logout/data/models/category_model.dart';
 import 'package:secondproject/features/home_logout/data/models/service_model.dart';
@@ -16,6 +18,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   Future<List<CategoryModel>> getCategories() async {
     try {
       final querySnapshot = await firestore.collection('categories').get();
+      log('category firebase');
       return querySnapshot.docs
           .map((doc) => CategoryModel.fromFirestore(doc))
           .toList();

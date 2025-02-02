@@ -1,3 +1,5 @@
+
+// service_repository_impl.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:secondproject/features/home_logout/domain/entities/category.dart';
 import 'package:secondproject/features/home_logout/domain/entities/service.dart';
@@ -13,16 +15,13 @@ class ServicesRepositoryImpl implements ServicesRepository {
     try {
       final snapshot = await _firestore.collection('categories').get();
       
-        if (snapshot.docs.isEmpty) {
-        return [];
-      }
       return snapshot.docs.map((doc) => Category(
         id: doc.id,
-        name: doc['name'],
-        imageUrl: doc['imageUrl'],
+        name: doc['name'] as String,
+    createdAt: (doc['createdAt'] as Timestamp).toDate(),
       )).toList();
     } catch (e) {
-      throw Exception('Failed to fetch categories');
+      throw Exception('Failed to fetch categories: ${e.toString()}');
     }
   }
 
@@ -33,16 +32,20 @@ class ServicesRepositoryImpl implements ServicesRepository {
           .collection('services')
           .where('categoryId', isEqualTo: categoryId)
           .get();
-      return snapshot.docs.map((doc) => Service(
-        id: doc.id,
-        name: doc['name'],
-        imageUrl: doc['imageUrl'],
-        categoryId: doc['categoryId'],
-              description: doc['description'],
-         createdAt: (doc['createdAt'] as Timestamp).toDate()
-      )).toList();
+      
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Service(
+          id: doc.id,
+          name: data['name'] as String,
+          imageUrl: data['imageUrl'] as String,
+          categoryId: data['categoryId'] as String,
+          description: data['description'] as String,
+          createdAt: (data['createdAt'] as Timestamp).toDate(),
+        );
+      }).toList();
     } catch (e) {
-      throw Exception('Failed to fetch services');
+      throw Exception('Failed to fetch services: ${e.toString()}');
     }
   }
 }

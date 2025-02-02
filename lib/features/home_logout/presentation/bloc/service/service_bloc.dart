@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:secondproject/features/home_logout/domain/repositories/service_repository.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/service/service_event.dart';
@@ -18,6 +20,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
     emit(ServicesLoading());
     try {
       final categories = await _repository.getCategories();
+         log('category bloc');
       emit(CategoriesLoaded(categories));
     } catch (e) {
       emit(ServicesError(e.toString()));
@@ -31,6 +34,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
     emit(ServicesLoading());
     try {
       final services = await _repository.getServicesByCategory(event.categoryId);
+             log('category bloc');
       emit(ServicesLoaded(services));
     } catch (e) {
       emit(ServicesError(e.toString()));

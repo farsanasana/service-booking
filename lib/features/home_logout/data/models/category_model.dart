@@ -5,11 +5,11 @@ class CategoryModel extends Category {
   CategoryModel({
     required String id,
     required String name,
-    required String imageUrl,
+ required DateTime createdAt,
   }) : super(
           id: id,
           name: name,
-          imageUrl: imageUrl,
+        createdAt: createdAt,
         );
 
   factory CategoryModel.fromFirestore(DocumentSnapshot doc) {
@@ -17,7 +17,7 @@ class CategoryModel extends Category {
     return CategoryModel(
       id: doc.id,
       name: data['name'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
+      createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
   }
 }

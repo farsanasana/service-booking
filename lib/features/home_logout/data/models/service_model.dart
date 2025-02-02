@@ -1,6 +1,8 @@
 
 
 
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:secondproject/features/home_logout/domain/entities/service.dart';
 
@@ -28,6 +30,8 @@ class ServiceModel extends Service {
 
   factory ServiceModel.fromFirestore(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
    final data=doc.data();
+       log('ServiceModel called');
+
     return ServiceModel(
   id: doc.id,
       name: data['name'] ?? '',
@@ -36,6 +40,7 @@ class ServiceModel extends Service {
 
  description:data['description']??'',
       createdAt: (data['createdAt'] as Timestamp).toDate(),
+      
     );
   }
 
