@@ -1,19 +1,19 @@
-class Service  {
+class Service {
   final String id;
   final String name;
   final String imageUrl;
-  final String categoryId;
-  final DateTime createdAt;
+  final String ?categoryId;
   final String description;
+  final DateTime createdAt;
+  final double price;
 
-  Service ({
+  Service({
     required this.id,
     required this.name,
     required this.imageUrl,
-    required this.categoryId,
-     required this.description,
+     this.categoryId,
+    required this.description,
     required this.createdAt,
+    required this.price,
   });
-
-  
 }

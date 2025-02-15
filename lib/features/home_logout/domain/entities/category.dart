@@ -10,4 +10,3 @@ final DateTime createdAt;
   });
 }
 
-// lib/features/home/data/models/service_model.dart

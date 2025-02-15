@@ -12,7 +12,7 @@ import 'package:secondproject/features/google/google_sign_in/google_sign_in_bloc
 import 'package:secondproject/features/google/repositories_google_services.dart';
 import 'package:secondproject/features/home_logout/domain/repositories/auth_repository.dart';
 import 'package:secondproject/features/home_logout/domain/repositories/service_repository.dart';
-import 'package:secondproject/features/home_logout/domain/repositories/services_repository_impl.dart';
+import 'package:secondproject/features/home_logout/data/models/datasources/services_repository_impl.dart';
 import 'package:secondproject/features/home_logout/domain/usecases/logout.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/auth/auth_bloc.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/service/service_bloc.dart';
@@ -92,9 +92,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => LogoutBloc(logoutUseCase)),
           BlocProvider(create: (_) => GoogleSignInBloc(GoogleSignInService())),
           BlocProvider(create: (_)=>ProfileBloc(getUserProfile)),
-          // BlocProvider(
-          //   create: (context) => ProfileBloc(getUserProfile),         
-          // ),
+          BlocProvider(
+            create: (context) => ProfileBloc(getUserProfile),         
+          ),
           BlocProvider(
             create: (context) => ServicesBloc(context.read<ServicesRepository>())),
           
