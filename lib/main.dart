@@ -36,36 +36,37 @@ void main() async {
   await Firebase.initializeApp();
  // initProfileDependencies();
 
-  final firebaseAuth = FirebaseAuth.instance;
-  final firebaseStore=FirebaseFirestore.instance;
+final firebaseAuth = FirebaseAuth.instance;
+final firebaseStore=FirebaseFirestore.instance;
 
   // Initialize repositories
-  final authenticationRepository  = AuthenticationRepository(firebaseAuth); // Correct repository
- final signUpRepository = FirebaseSignupRepository(firebaseAuth,firebaseStore);
-  final logoutRepository = LogoutRepository();
-  final userRepository = FirebaseUserRepository(firebaseStore);
+final authenticationRepository  = AuthenticationRepository(firebaseAuth); // Correct repository
+final signUpRepository = FirebaseSignupRepository(firebaseAuth,firebaseStore);
+final logoutRepository = LogoutRepository();
+final userRepository = FirebaseUserRepository(firebaseStore);
 
  
   // Initialize use cases
-  final loginUseCase = LoginUseCase(authenticationRepository); // Use correct repository for login
+final loginUseCase = LoginUseCase(authenticationRepository); // Use correct repository for login
 final signupUseCase = SignupUser(signUpRepository);
 final logoutUseCase = LogoutUseCase(logoutRepository);
-  final getUserProfile = GetUserProfile(userRepository); 
+final getUserProfile = GetUserProfile(userRepository); 
   
   runApp(MyApp(
-    loginUseCase: loginUseCase,
+   loginUseCase: loginUseCase,
    signupUseCase: signupUseCase,
-    logoutUseCase: logoutUseCase,  
-    getUserProfile:getUserProfile  , firestore: firebaseStore,  
+   logoutUseCase: logoutUseCase,  
+   getUserProfile:getUserProfile,
+   firestore: firebaseStore,  
   ));
 }
 
 class MyApp extends StatelessWidget {
   final LoginUseCase loginUseCase;
-   final SignupUser signupUseCase;
+  final SignupUser signupUseCase;
   final LogoutUseCase logoutUseCase;
   final GetUserProfile getUserProfile;
-    final FirebaseFirestore firestore; 
+  final FirebaseFirestore firestore; 
 
   const MyApp({
     super.key,
@@ -85,11 +86,11 @@ class MyApp extends StatelessWidget {
       ],
       child: MultiBlocProvider(
         providers: [
-            Provider<GetUserProfile>.value(value: getUserProfile),
+          Provider<GetUserProfile>.value(value: getUserProfile),
       
           BlocProvider(create: (_) => LoginBloc(loginUseCase)),
-       BlocProvider(create: (_) => SignupBloc(signupUseCase)),   
-        BlocProvider(create: (_) => LogoutBloc(logoutUseCase)),
+          BlocProvider(create: (_) => SignupBloc(signupUseCase)),   
+          BlocProvider(create: (_) => LogoutBloc(logoutUseCase)),
           BlocProvider(create: (_) => GoogleSignInBloc(GoogleSignInService())),
           BlocProvider(create: (_)=>ProfileBloc(getUserProfile)),
           BlocProvider(
@@ -102,7 +103,7 @@ class MyApp extends StatelessWidget {
             create: (context) => ImageBloc(),),
            
         
-            BlocProvider(create: (_) => NavigationBloc()),
+          BlocProvider(create: (_) => NavigationBloc()),
             // RepositoryProvider<HomeRepository>(create: (_) => HomeRepository()),
           
         ],

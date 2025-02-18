@@ -122,18 +122,7 @@ class ServiceDetailsPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.category_outlined, size: 20, color: Colors.grey),
-              SizedBox(width: 8),
-              Text(
-                'Category: ${service.categoryId}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
+        
         ],
       ),
     );
@@ -145,14 +134,7 @@ class ServiceDetailsPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Description',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 8),
+          
           Text(
             service.description,
             style: TextStyle(
@@ -189,7 +171,7 @@ class ServiceDetailsPage extends StatelessWidget {
                 ),
               ),
               Text(
-                'AED ${service.price.toStringAsFixed(2)}',
+                '₹${service.price.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
