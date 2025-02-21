@@ -8,6 +8,8 @@ import 'package:secondproject/features/Profile/data/repositories/firebase_user_r
 import 'package:secondproject/features/Profile/domain/usecases/get_user_profile.dart';
 import 'package:secondproject/features/Profile/presentation/bloc/profile_bloc.dart';
 import 'package:secondproject/features/Profile/presentation/pages/profile_screen.dart';
+import 'package:secondproject/features/booking/data/repository/repository_booking.dart';
+import 'package:secondproject/features/booking/presentation/bloc/booking_bloc.dart';
 import 'package:secondproject/features/google/google_sign_in/google_sign_in_bloc.dart';
 import 'package:secondproject/features/google/repositories_google_services.dart';
 import 'package:secondproject/features/home_logout/domain/repositories/auth_repository.dart';
@@ -15,6 +17,10 @@ import 'package:secondproject/features/home_logout/domain/repositories/service_r
 import 'package:secondproject/features/home_logout/data/models/datasources/services_repository_impl.dart';
 import 'package:secondproject/features/home_logout/domain/usecases/logout.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/auth/auth_bloc.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/banner/banner_bloc.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/banner/banner_event.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/offer4/offerbanner_bloc.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/offer4/offerbanner_event.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/service/service_bloc.dart';
 import 'package:secondproject/features/home_logout/presentation/pages/home-page.dart';
 import 'package:secondproject/features/home_navigation/presentation/bloc/navigation_bloc.dart';
@@ -87,15 +93,22 @@ class MyApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           Provider<GetUserProfile>.value(value: getUserProfile),
-      
+         BlocProvider(
+      create: (context) => BookingBloc(
+        BookingRepository(),
+      ),
+    ),
+      BlocProvider(create: (_) => OfferBannerBloc(firestore: FirebaseFirestore.instance)..add(const LoadBannerImages())),
           BlocProvider(create: (_) => LoginBloc(loginUseCase)),
+               BlocProvider<BannerBloc>(
+          create: (context) => BannerBloc()),
+        
+          
           BlocProvider(create: (_) => SignupBloc(signupUseCase)),   
           BlocProvider(create: (_) => LogoutBloc(logoutUseCase)),
           BlocProvider(create: (_) => GoogleSignInBloc(GoogleSignInService())),
           BlocProvider(create: (_)=>ProfileBloc(getUserProfile)),
-          BlocProvider(
-            create: (context) => ProfileBloc(getUserProfile),         
-          ),
+        
           BlocProvider(
             create: (context) => ServicesBloc(context.read<ServicesRepository>())),
           

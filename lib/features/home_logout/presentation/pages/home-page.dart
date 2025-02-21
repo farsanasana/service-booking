@@ -4,9 +4,13 @@ import 'package:secondproject/features/Profile/presentation/pages/profile_screen
 import 'package:secondproject/features/home_logout/domain/entities/category.dart';
 import 'package:secondproject/features/home_logout/domain/entities/service.dart';
 import 'package:secondproject/features/home_logout/domain/repositories/service_repository.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/banner/banner_bloc.dart';
+import 'package:secondproject/features/home_logout/presentation/bloc/offer4/offerbanner_bloc.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/service/service_bloc.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/service/service_event.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/service/service_state.dart';
+import 'package:secondproject/features/home_logout/presentation/pages/offer.dart';
+import 'package:secondproject/features/home_logout/presentation/pages/promotionbanner.dart';
 import 'package:secondproject/features/home_logout/presentation/pages/service_list.dart';
 import 'package:secondproject/features/home_logout/presentation/pages/servicesdetailspage.dart';
 import 'package:secondproject/features/home_navigation/domain/entities/navigation_tab.dart';
@@ -28,7 +32,12 @@ class HomePage extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => NavigationBloc(),
+        
         ),
+        BlocProvider(
+  create: (context) => BannerBloc(),
+  child: PromotionBanner(),
+)
       ],
       child: BlocBuilder<NavigationBloc, NavigationState>(
         builder: (context, state) {
@@ -67,7 +76,8 @@ class HomePage extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'Search',
+                  hintText: 'Search...'
+                  ,
                   prefixIcon: Icon(Icons.search),
                   filled: true,
                   fillColor: Colors.white,
@@ -150,7 +160,7 @@ class HomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildPromotionBanner(),
+                  PromotionBanner(),
                   _buildSectionTitle('Categories'),
                   _buildCategoriesGrid(displayCategories, context),
                   _buildSectionTitle('Services'),
@@ -163,7 +173,11 @@ class HomePage extends StatelessWidget {
                         child: Text('No services available'),
                       ),
                     ),
-                  SizedBox(height: 80),
+                  SizedBox(height: 20),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text('Special Offers', style: Theme.of(context).textTheme.titleLarge,),
+                ),
+                   OfferBanner(),
                 ],
               ),
             ),
@@ -172,21 +186,6 @@ class HomePage extends StatelessWidget {
 
         return Center(child: Text('Something went wrong'));
       },
-    );
-  }
-
-  Widget _buildPromotionBanner() {
-    return Container(
-      height: 180,
-      margin: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.green[100],
-        borderRadius: BorderRadius.circular(12),
-        image: DecorationImage(
-          image: AssetImage('assets/images/cleaning_banner.jpg'),
-          fit: BoxFit.cover,
-        ),
-      ),
     );
   }
 
