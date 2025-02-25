@@ -5,22 +5,14 @@ import 'package:secondproject/features/home_logout/domain/entities/service.dart'
 
 class ServiceModel extends Service {
   ServiceModel({
-    required String id,
-    required String name,
-    required String imageUrl,
-    required String categoryId,
-    required String description,
-    required DateTime createdAt,
-    required double price,
-  }) : super(
-          id: id,
-          name: name,
-          imageUrl: imageUrl,
-          categoryId: categoryId,
-          description: description,
-          createdAt: createdAt,
-          price: price,
-        );
+    required super.id,
+    required super.name,
+    required super.imageUrl,
+    required String super.categoryId,
+    required super.description,
+    required super.createdAt,
+    required super.price,
+  });
 
   factory ServiceModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? {};

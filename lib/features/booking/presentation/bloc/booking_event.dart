@@ -9,22 +9,13 @@ class CreateBooking extends BookingEvent {
 
 class LoadUserBookings extends BookingEvent {}
 class UpdateBookingLocation extends BookingEvent {
-  final String bookingId;
   final double latitude;
   final double longitude;
 
-  UpdateBookingLocation({
-    required this.bookingId,
-    required this.latitude,
-    required this.longitude,
-  });
+  UpdateBookingLocation({required this.latitude, required this.longitude});
 }
 
-class ConfirmBookingLocation extends BookingEvent {
-  final String bookingId;
-  
-  ConfirmBookingLocation({required this.bookingId});
-}
+class ConfirmBookingLocation extends BookingEvent {}
 class UpdateBookingDateTime extends BookingEvent {
   final String bookingId;
   final DateTime dateTime;

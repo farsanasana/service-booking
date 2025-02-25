@@ -9,9 +9,9 @@ class TimeSelectionScreen extends StatelessWidget {
   final String bookingId;
 
   const TimeSelectionScreen({
-    Key? key,
+    super.key,
     required this.bookingId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +56,7 @@ class TimeSelectionScreen extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     SizedBox(height: 16),
-                    Container(
+                    SizedBox(
                       height: 100,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,

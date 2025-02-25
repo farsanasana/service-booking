@@ -5,6 +5,9 @@ import 'package:secondproject/features/booking/presentation/bloc/booking_state.d
 
 class BookingBloc extends Bloc<BookingEvent, BookingState> {
   final BookingRepository _repository;
+  double? _lastLatitude;
+  double? _lastLongitude;
+    String? _currentBookingId;
 
   BookingBloc(this._repository) : super(BookingInitial()) {
     on<CreateBooking>(_onCreateBooking);
@@ -14,6 +17,13 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     on<UpdateBookingDateTime>(_onUpdateBookingDateTime);
   }
 
+  Stream<BookingState> mapEventToState(BookingEvent event) async* {
+    if (event is UpdateBookingLocation) {
+      yield BookingLocationUpdated(event.latitude, event.longitude);
+    } else if (event is ConfirmBookingLocation) {
+      yield LocationUpdateSuccess();
+    }
+  }
   Future<void> _onCreateBooking(
     CreateBooking event,
     Emitter<BookingState> emit,
@@ -21,7 +31,8 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     emit(BookingLoading());
     try {
       final bookingId = await _repository.createBooking(event.booking);
-      if (bookingId != null && bookingId.isNotEmpty) {
+      if (bookingId.isNotEmpty) {
+          _currentBookingId = bookingId;
         emit(BookingSuccess(bookingId));
       } else {
         emit(BookingError("Failed to create booking"));
@@ -61,26 +72,38 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     Emitter<BookingState> emit,
   ) async {
     try {
-      await _repository.updateBookingLocation(
-        event.bookingId,
+_lastLatitude=event.latitude;
+_lastLongitude=event.longitude;
+if (_currentBookingId !=null) {
+   await _repository.updateBookingLocation(
+        _currentBookingId!,
         event.latitude,
         event.longitude,
       );
-      emit(LocationUpdateSuccess());
+}
+
+      emit(BookingLocationUpdated(
+    event.latitude,
+       event.longitude,
+      ));
     } catch (e) {
-      emit(BookingError(e.toString()));
+      emit(BookingError("Failed to update location: ${e.toString()}"));
     }
   }
 
-  Future<void> _onConfirmBookingLocation(
+   Future<void> _onConfirmBookingLocation(
     ConfirmBookingLocation event,
     Emitter<BookingState> emit,
   ) async {
     try {
-      await _repository.confirmBookingLocation(event.bookingId);
-      emit(LocationUpdateSuccess());
+      if (_currentBookingId != null && _lastLatitude != null && _lastLongitude != null) {
+        await _repository.confirmBookingLocation(_currentBookingId!);
+        emit(LocationUpdateSuccess());
+      } else {
+        emit(BookingError("Missing booking details or location data"));
+      }
     } catch (e) {
-      emit(BookingError(e.toString()));
+      emit(BookingError("Failed to confirm location: ${e.toString()}"));
     }
   }
 }

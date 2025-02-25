@@ -20,11 +20,13 @@ class BookingsLoaded extends BookingState {
   final List<Booking> bookings;
   BookingsLoaded(this.bookings);
 }
-class LocationUpdateSuccess extends BookingState {}
+
 class TimeSelectionSuccess extends BookingState {}
 /// 📌 **New State to Hold Updated Location**
 class BookingLocationUpdated extends BookingState {
   final double latitude;
   final double longitude;
-  BookingLocationUpdated({required this.latitude, required this.longitude});
+  BookingLocationUpdated(this.latitude, this.longitude);
 }
+
+class LocationUpdateSuccess extends BookingState {}

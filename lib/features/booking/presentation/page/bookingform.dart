@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:secondproject/features/booking/presentation/page/google.dart';
 import 'package:uuid/uuid.dart';
 import '../bloc/booking_bloc.dart';
 import '../bloc/booking_event.dart';
@@ -11,10 +12,10 @@ class BookingForm extends StatelessWidget {
   final String serviceId;
   final String serviceName;
 
-  BookingForm({
+  const BookingForm({Key? key, 
     required this.serviceId,
     required this.serviceName,
-  });
+  }):super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,7 @@ class BookingForm extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => LocationConfirmationScreen(
-                bookingId: state.bookingId, // Use the booking ID from state
+            bookingId: state.bookingId,
               ),
             ),
           );
@@ -274,6 +275,7 @@ class BookingForm extends StatelessWidget {
 
                                 context.read<BookingBloc>().add(CreateBooking(booking));
                               }
+                             
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber,

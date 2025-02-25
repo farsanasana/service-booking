@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:secondproject/features/Profile/presentation/pages/profile_screen.dart';
@@ -19,6 +21,8 @@ import 'package:secondproject/features/home_navigation/presentation/bloc/navigat
 import 'package:secondproject/features/home_navigation/presentation/bloc/navigation_state.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
