@@ -1,189 +1,13 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:geolocator/geolocator.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:secondproject/features/booking/presentation/bloc/booking_bloc.dart';
-// import 'package:secondproject/features/booking/presentation/bloc/booking_event.dart';
-// import 'package:secondproject/features/booking/presentation/bloc/booking_state.dart';
-
-
-// class LocationConfirmationScreen extends StatefulWidget {
-//   const LocationConfirmationScreen({super.key});
-
-//   @override
-//   State<LocationConfirmationScreen> createState() => _LocationConfirmationScreenState();
-// }
-
-// class _LocationConfirmationScreenState extends State<LocationConfirmationScreen> {
-//   late GoogleMapController _mapController;
-//   Set<Marker> _markers = {};
-//   LatLng _selectedLocation = LatLng(37.4223,-122.0848); // Default Dubai Marina
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _getCurrentLocation();
-//   }
-
-//   Future<void> _getCurrentLocation() async {
-//     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-//     if (!serviceEnabled) return;
-
-//     LocationPermission permission = await Geolocator.checkPermission();
-//     if (permission == LocationPermission.denied) {
-//       permission = await Geolocator.requestPermission();
-//       if (permission == LocationPermission.denied) return;
-//     }
-
-//     Position position = await Geolocator.getCurrentPosition();
-//     _updateLocation(LatLng(position.latitude, position.longitude));
-//   }
-
-//   void _updateLocation(LatLng position) {
-//     setState(() {
-//       _selectedLocation = position;
-//       _markers = {
-//         Marker(
-//           markerId: MarkerId("selected_location"),
-//           position: position,
-//           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-//         ),
-//       };
-//     });
-
-//     _mapController.animateCamera(CameraUpdate.newLatLngZoom(position, 15));
-
-//     context.read<BookingBloc>().add(
-//       UpdateBookingLocation(latitude: position.latitude, longitude: position.longitude),
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocConsumer<BookingBloc, BookingState>(
-//       listener: (context, state) {
-//         if (state is LocationUpdateSuccess) {
-//           Navigator.pushNamed(context, '/booking/step3');
-//         }
-//       },
-//       builder: (context, state) {
-//         return Scaffold(
-//           body: Stack(
-//             children: [
-//               // Google Map
-//               GoogleMap(
-//                 initialCameraPosition: CameraPosition(
-//                   target: _selectedLocation,
-//                   zoom: 14,
-//                 ),
-//                 markers: _markers,
-//                 myLocationEnabled: true,
-//                 myLocationButtonEnabled: false,
-//                 mapType: MapType.normal,
-//                 zoomControlsEnabled: false,
-//                 onMapCreated: (controller) {
-//                   _mapController = controller;
-//                 },
-//                 onTap: _updateLocation,
-//               ),
-
-//               // Search Bar
-//               Positioned(
-//                 top: 40,
-//                 left: 16,
-//                 right: 16,
-//                 child: Container(
-//                   padding: EdgeInsets.symmetric(horizontal: 16),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white,
-//                     borderRadius: BorderRadius.circular(30),
-//                     boxShadow: [
-//                       BoxShadow(
-//                         // ignore: deprecated_member_use
-//                         color: Colors.black.withOpacity(0.1),
-//                         blurRadius: 4,
-//                         offset: Offset(0, 2),
-//                       ),
-//                     ],
-//                   ),
-//                   child: Row(
-//                     children: [
-//                       IconButton(
-//                         icon: Icon(Icons.arrow_back, color: Colors.black),
-//                         onPressed: () => Navigator.pop(context),
-//                       ),
-//                       Expanded(
-//                         child: TextField(
-//                           decoration: InputDecoration(
-//                             hintText: 'Search for your location',
-//                             border: InputBorder.none,
-//                           ),
-//                           onChanged: (value) {
-//                             // Connect to Google Places API
-//                           },
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-
-//               // Current Location Button
-//               Positioned(
-//                 bottom: 100,
-//                 right: 16,
-//                 child: FloatingActionButton(
-//                   backgroundColor: Colors.white,
-//                   child: Icon(Icons.my_location, color: Colors.blue),
-//                   onPressed: _getCurrentLocation,
-//                 ),
-//               ),
-
-//               // Bottom Sheet with Address & Confirm Button
-//               Positioned(
-//                 bottom: 30,
-//                 left: 30,
-//                 right: 30,
-//                 child: ElevatedButton(
-//                   onPressed: () {
-//                     context.read<BookingBloc>().add(ConfirmBookingLocation());
-//                   },
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: Color(0xFFFFBF43), // Amber color
-//                     minimumSize: Size(double.infinity, 50),
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(25),
-//                     ),
-//                   ),
-//                   child: Padding(
-//                     padding: const EdgeInsets.symmetric(vertical: 16.0),
-//                     child: Text(
-//                       'Confirm Pin Location',
-//                       style: TextStyle(
-//                         fontSize: 18,
-//                         fontWeight: FontWeight.w500,
-//                         color: Colors.white,
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../bloc/booking_bloc.dart';
-import '../bloc/booking_event.dart';
-import '../bloc/booking_state.dart';
+import 'package:secondproject/features/booking/presentation/page/timeselection_screen.dart';
+import '../bloc/booking/booking_bloc.dart';
+import '../bloc/booking/booking_event.dart';
+import '../bloc/booking/booking_state.dart';
 
 class LocationConfirmationScreen extends StatefulWidget {
   final String bookingId;
@@ -509,19 +333,30 @@ class _LocationConfirmationScreenState extends State<LocationConfirmationScreen>
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             // Save location to booking
-                            FirebaseFirestore.instance
-                                .collection('bookings')
-                                .doc(widget.bookingId)
-                                .update({
-                                  'latitude': _selectedLocation.latitude,
-                                  'longitude': _selectedLocation.longitude,
-                                  'address': _fullAddress,
-                                  'locationConfirmed': true,
-                                });
-                                
+                         try {
+   await FirebaseFirestore.instance.collection('bookings').doc(widget.bookingId).update({
+     'latitude': _selectedLocation.latitude,
+     'longitude': _selectedLocation.longitude,
+     'address': _fullAddress,
+     'locationConfirmed': true,
+   });
+} catch (e) {
+   ScaffoldMessenger.of(context).showSnackBar(
+     SnackBar(content: Text('Failed to update Firestore: $e')),
+   );
+}
+
                             context.read<BookingBloc>().add(ConfirmBookingLocation());
+                              Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => TimeSelectionScreen(
+        bookingId: widget.bookingId, totalAmount: '',  // Ensure the booking ID is passed here
+      ),
+    ),
+  );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.deepOrange,

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:secondproject/features/booking/presentation/page/google.dart';
 import 'package:uuid/uuid.dart';
-import '../bloc/booking_bloc.dart';
-import '../bloc/booking_event.dart';
-import '../bloc/booking_state.dart';
+import '../bloc/booking/booking_bloc.dart';
+import '../bloc/booking/booking_event.dart';
+import '../bloc/booking/booking_state.dart';
 import '../../data/model/booking_model.dart';
 import 'locationconfirmation_screen.dart';
 
@@ -263,6 +262,8 @@ class BookingForm extends StatelessWidget {
                                   serviceName: serviceName,
                                   totalAmount: calculateTotal(
                                     selectedHours,
+                          
+                          
                                     selectedProfessionals,
                                     needMaterials,
                                   ),
@@ -274,6 +275,7 @@ class BookingForm extends StatelessWidget {
                                 );
 
                                 context.read<BookingBloc>().add(CreateBooking(booking));
+                                  
                               }
                              
                             },
@@ -309,3 +311,4 @@ class BookingForm extends StatelessWidget {
     return total;
   }
 }
+

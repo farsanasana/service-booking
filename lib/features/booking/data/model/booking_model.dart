@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:secondproject/features/booking/data/model/payment_model.dart';
 
 class Booking {
   final String id;
@@ -16,8 +17,9 @@ class Booking {
   final String? address;
   final bool locationConfirmed;
   final DateTime? scheduledDateTime;
+ final PaymentDetails? paymentDetails;
 
-  Booking({
+  Booking( {this.paymentDetails,
     required this.id,
     required this.userId,
     required this.serviceId,
@@ -54,6 +56,7 @@ class Booking {
       'scheduledDateTime': scheduledDateTime != null 
           ? Timestamp.fromDate(scheduledDateTime!) 
           : null,
+             'paymentDetails': paymentDetails?.toMap(),
     };
   }
 
@@ -76,6 +79,9 @@ class Booking {
       scheduledDateTime: map['scheduledDateTime'] != null 
           ? (map['scheduledDateTime'] as Timestamp).toDate() 
           : null,
+              paymentDetails: map['paymentDetails'] != null
+          ? PaymentDetails.fromMap(map['paymentDetails'])
+          : null,
     );
   }
 
@@ -94,7 +100,7 @@ class Booking {
     double? longitude,
     String? address,
     bool? locationConfirmed,
-    DateTime? scheduledDateTime,
+    DateTime? scheduledDateTime, PaymentDetails? paymentDetails,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -112,6 +118,7 @@ class Booking {
       address: address ?? this.address,
       locationConfirmed: locationConfirmed ?? this.locationConfirmed,
       scheduledDateTime: scheduledDateTime ?? this.scheduledDateTime,
+    paymentDetails: paymentDetails ?? this.paymentDetails,
     );
   }
 }

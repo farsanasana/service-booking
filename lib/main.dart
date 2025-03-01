@@ -3,13 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
+import 'package:secondproject/core/constand/api.dart';
 import 'package:secondproject/features/Profile/data/repositories/firebase_user_repository.dart';
 import 'package:secondproject/features/Profile/domain/usecases/get_user_profile.dart';
 import 'package:secondproject/features/Profile/presentation/bloc/profile_bloc.dart';
 import 'package:secondproject/features/Profile/presentation/pages/profile_screen.dart';
 import 'package:secondproject/features/booking/data/repository/repository_booking.dart';
-import 'package:secondproject/features/booking/presentation/bloc/booking_bloc.dart';
+import 'package:secondproject/features/booking/presentation/bloc/booking/booking_bloc.dart';
+import 'package:secondproject/features/booking/presentation/page/payment_screen.dart';
 import 'package:secondproject/features/google/google_sign_in/google_sign_in_bloc.dart';
 import 'package:secondproject/features/google/repositories_google_services.dart';
 import 'package:secondproject/features/home_logout/domain/repositories/auth_repository.dart';
@@ -41,6 +44,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
  // initProfileDependencies();
+
+ // Initialize Stripe
+  Stripe.publishableKey = stripePublishKey;
+ 
+
 
 final firebaseAuth = FirebaseAuth.instance;
 final firebaseStore=FirebaseFirestore.instance;
@@ -103,7 +111,7 @@ class MyApp extends StatelessWidget {
                BlocProvider<BannerBloc>(
           create: (context) => BannerBloc()),
         
-          
+               
           BlocProvider(create: (_) => SignupBloc(signupUseCase)),   
           BlocProvider(create: (_) => LogoutBloc(logoutUseCase)),
           BlocProvider(create: (_) => GoogleSignInBloc(GoogleSignInService())),
@@ -126,10 +134,21 @@ class MyApp extends StatelessWidget {
           routes: {
             '/onboarding': (context) => const OnboardingPage(),
             '/login': (context) => LoginPage(),
+      
+              '/booking/step4': (context) {
+            // Extract the booking ID and total amount from arguments
+            final Map<String, dynamic> args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??{'bookingID':'','totalAmount':0.0,};
+            
+            return PaymentScreen(
+              bookingId: args['bookingId'] as String? ?? '',
+    totalAmount: (args['totalAmount'] as num?)?.toDouble() ?? 0.0,
+            );
+          },
             '/signup': (context) => SignupPage(),
             '/home': (context) => HomePage(),
             '/profile':(context)=>ProfilePage(),
             '/forget_pass':(context)=>ForgotPassword(),
+            
           },
         ),
       ),

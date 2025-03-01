@@ -21,6 +21,25 @@ class BookingRepository {
       throw Exception('Failed to create booking: $e');
     }
   }
+  Future<void> updateBookingPayment(
+    String bookingId,
+    String transactionId,
+    String status,
+    String paymentMethod,
+  ) async {
+    try {
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'paymentDetails': {
+          'transactionId': transactionId,
+          'status': status,
+          'method': paymentMethod,
+          'timestamp': FieldValue.serverTimestamp(),
+        }
+      });
+    } catch (e) {
+      throw Exception("Failed to update booking payment: $e");
+    }
+  }
 
   Future<List<Booking>> getUserBookings() async {
     try {

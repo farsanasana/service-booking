@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../bloc/booking_bloc.dart';
-import '../bloc/booking_event.dart';
-import '../bloc/booking_state.dart';
+import '../bloc/booking/booking_bloc.dart';
+import '../bloc/booking/booking_event.dart';
+import '../bloc/booking/booking_state.dart';
 
 class TimeSelectionScreen extends StatelessWidget {
   final String bookingId;
-
+final String totalAmount;
   const TimeSelectionScreen({
     super.key,
-    required this.bookingId,
+    required this.bookingId,  required this.totalAmount,
   });
 
   @override
@@ -21,7 +21,10 @@ class TimeSelectionScreen extends StatelessWidget {
     return BlocListener<BookingBloc, BookingState>(
       listener: (context, state) {
         if (state is TimeSelectionSuccess) {
-          Navigator.pushNamed(context, '/booking/step4');
+          Navigator.pushNamed(context, '/booking/step4',    arguments: {
+        'bookingId': bookingId,
+        'totalAmount': double.parse(totalAmount),
+      },);
         } else if (state is BookingError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -192,8 +195,22 @@ class TimeSelectionScreen extends StatelessWidget {
                     dateTime: dateTime,
                   ),
                 );
-              }
-            },
+   Navigator.pushNamed(
+      context,
+       '/booking/step4', // Adjust this if your payment screen route is different
+      arguments: {
+        'bookingId': bookingId,
+        'totalAmount': double.tryParse(totalAmount) ?? 0.0, // Ensure valid amount
+      },
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please select a time')),
+    );
+  }
+},
+
+
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               minimumSize: Size(double.infinity, 50),

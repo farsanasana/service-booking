@@ -25,3 +25,29 @@ class UpdateBookingDateTime extends BookingEvent {
     required this.dateTime,
   });
 }
+class ProcessPayment extends BookingEvent {
+  final String bookingId;
+  final String paymentMethod;
+  final double amount;
+
+  ProcessPayment({
+    required this.bookingId,
+    required this.paymentMethod,
+    required this.amount,
+  });
+}
+class UpdateBookingSelection extends BookingEvent {
+  final int? selectedHours;
+  final int? selectedProfessionals;
+  final bool? needMaterials;
+  final String? instructions;
+
+  UpdateBookingSelection({
+    this.selectedHours,
+    this.selectedProfessionals,
+    this.needMaterials,
+    this.instructions,
+  });
+}
+
+
