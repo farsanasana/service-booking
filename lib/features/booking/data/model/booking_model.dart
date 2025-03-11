@@ -17,9 +17,10 @@ class Booking {
   final String? address;
   final bool locationConfirmed;
   final DateTime? scheduledDateTime;
- final PaymentDetails? paymentDetails;
+  final PaymentDetails? paymentDetails;
+  final String paymentStatus;
 
-  Booking( {this.paymentDetails,
+  Booking({
     required this.id,
     required this.userId,
     required this.serviceId,
@@ -30,11 +31,13 @@ class Booking {
     required this.needMaterials,
     required this.instructions,
     required this.bookingDate,
+    required this.paymentStatus,
     this.latitude,
     this.longitude,
     this.address,
     this.locationConfirmed = false,
     this.scheduledDateTime,
+    this.paymentDetails,
   });
 
   Map<String, dynamic> toMap() {
@@ -48,7 +51,7 @@ class Booking {
       'professionals': professionals,
       'needMaterials': needMaterials,
       'instructions': instructions,
-      'bookingDate': Timestamp.fromDate(bookingDate),
+      'bookingDate': Timestamp.now(),
       'latitude': latitude,
       'longitude': longitude,
       'address': address,
@@ -56,7 +59,8 @@ class Booking {
       'scheduledDateTime': scheduledDateTime != null 
           ? Timestamp.fromDate(scheduledDateTime!) 
           : null,
-             'paymentDetails': paymentDetails?.toMap(),
+      'paymentDetails': paymentDetails?.toMap(),
+      'paymentStatus': paymentStatus,
     };
   }
 
@@ -79,9 +83,10 @@ class Booking {
       scheduledDateTime: map['scheduledDateTime'] != null 
           ? (map['scheduledDateTime'] as Timestamp).toDate() 
           : null,
-              paymentDetails: map['paymentDetails'] != null
+      paymentDetails: map['paymentDetails'] != null
           ? PaymentDetails.fromMap(map['paymentDetails'])
           : null,
+      paymentStatus: map['paymentStatus'] ?? '',
     );
   }
 
@@ -100,7 +105,9 @@ class Booking {
     double? longitude,
     String? address,
     bool? locationConfirmed,
-    DateTime? scheduledDateTime, PaymentDetails? paymentDetails,
+    DateTime? scheduledDateTime,
+    PaymentDetails? paymentDetails,
+    String? paymentStatus,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -118,7 +125,8 @@ class Booking {
       address: address ?? this.address,
       locationConfirmed: locationConfirmed ?? this.locationConfirmed,
       scheduledDateTime: scheduledDateTime ?? this.scheduledDateTime,
-    paymentDetails: paymentDetails ?? this.paymentDetails,
+      paymentDetails: paymentDetails ?? this.paymentDetails,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
     );
   }
 }

@@ -17,7 +17,7 @@ Widget reusableTextField(
   );
 }
 
-Widget CustomButton(BuildContext context, String title, Function onTap) {
+Widget CustomButton(BuildContext context, String title, Function onTap, [Function? onLongPress]) {
   return SizedBox(
     height: 50.0,width: 250.0,
     child: ElevatedButton(
@@ -26,6 +26,7 @@ Widget CustomButton(BuildContext context, String title, Function onTap) {
       foregroundColor: Colors.white, // Set the text color
     ),
       onPressed: () => onTap(),
+      onLongPress: () => onLongPress!(),
       child: Text(title,style: TextStyle(fontSize: 18,),),
       
     ),

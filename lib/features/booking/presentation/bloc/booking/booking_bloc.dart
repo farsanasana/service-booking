@@ -1,27 +1,35 @@
 import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
+import 'package:secondproject/core/constand/api.dart';
 import 'package:secondproject/features/booking/data/repository/repository_booking.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_event.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_state.dart';
+import 'package:secondproject/features/booking/data/model/booking_model.dart';
 
 class BookingBloc extends Bloc<BookingEvent, BookingState> {
   final BookingRepository _repository;
   double? _lastLatitude;
   double? _lastLongitude;
   String? _currentBookingId;
+  Map<String, dynamic> _tempBookingData = {};
+  String _tempBookingId = '';
+  String _fullAddress = ''; // Added missing variable
 
-  BookingBloc(this._repository) : super(BookingInitial(serviceId: '',serviceName: '')) {
+  BookingBloc(this._repository) : super(BookingInitial(serviceId: '', serviceName: '')) {
     on<CreateBooking>(_onCreateBooking);
+    on<CreateBookingAfterPayment>(_onCreateBookingAfterPayment); // Fixed typo 'n<' to 'on<'
     on<LoadUserBookings>(_onLoadUserBookings);
     on<UpdateBookingLocation>(_onUpdateBookingLocation);
     on<ConfirmBookingLocation>(_onConfirmBookingLocation);
     on<UpdateBookingDateTime>(_onUpdateBookingDateTime);
     on<ProcessPayment>(_onProcessPayment);
+    on<StoreBookingData>(_onStoreBookingData);
     on<UpdateBookingSelection>(_onUpdateBookingSelection);
   }
 
-  // 🟢 Update Selection (Hours, Professionals, Materials, Instructions)
+  // Update Selection (Hours, Professionals, Materials, Instructions)
   void _onUpdateBookingSelection(
       UpdateBookingSelection event, Emitter<BookingState> emit) {
     if (state is BookingInitial) {
@@ -37,81 +45,147 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     }
   }
 
-  // 🟢 Process Payment (Stripe / Cash)
-  Future<void> _onProcessPayment(
-      ProcessPayment event, Emitter<BookingState> emit) async {
-    emit(PaymentProcessing());
-
-    try {
-      if (event.paymentMethod == 'credit_card') {
-        final paymentIntentResult = await _createPaymentIntent(event);
-
-        if (paymentIntentResult != null) {
+  // Modify the _onProcessPayment method in your BookingBloc
+Future<void> _onProcessPayment(ProcessPayment event, Emitter<BookingState> emit) async {
+  emit(PaymentProcessing());
+  
+  try {
+    if (event.paymentMethod == 'credit_card') {
+      // Step 1: Create payment method with error handling
+      final PaymentMethod paymentMethod;
+      try {
+        paymentMethod = await Stripe.instance.createPaymentMethod(
+          params: PaymentMethodParams.card(
+            paymentMethodData: PaymentMethodData(),
+          ),
+        );
+        print('Payment method created with ID: ${paymentMethod.id}');
+      } catch (e) {
+        emit(BookingError('Card validation failed: ${e.toString()}'));
+        return;
+      }
+      
+      // Step 2: Call your backend with proper error handling
+      try {
+        final response = await http.post(
+          Uri.parse('https://your-backend.com/create-payment-intent'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'amount': (event.totalAmount * 100).toInt(),
+            'currency': 'aed',
+            'payment_method_id': paymentMethod.id,
+          }),
+        );
+        
+        print('Payment API response code: ${response.statusCode}');
+        print('Payment API response body: ${response.body}');
+        
+        if (response.statusCode == 200 && response.body.isNotEmpty) {
+          final paymentIntent = json.decode(response.body);
           await _repository.updateBookingPayment(
             event.bookingId,
-            paymentIntentResult['id'],
-            'pending',
+            paymentIntent['id'],
+            'completed',
             event.paymentMethod,
           );
-          emit(PaymentSuccess(paymentIntentResult['id']));
+          emit(PaymentSuccess(paymentIntent['id']));
+          
+          // Add this to emit BookingCompleted after payment is successful
+          emit(BookingCompleted(bookingId: event.bookingId, totalAmount: event.totalAmount));
         } else {
-          emit(BookingError('Failed to process payment'));
+          emit(BookingError('Server returned error: ${response.statusCode}'));
         }
-      } else if (event.paymentMethod == 'cash') {
-        await _repository.updateBookingPayment(
-          event.bookingId,
-          'cash_${DateTime.now().millisecondsSinceEpoch}',
-          'pending_cash',
-          'cash',
-        );
-        emit(PaymentSuccess('cash_payment'));
+      } catch (e) {
+        emit(BookingError('Network error: ${e.toString()}'));
       }
-    } catch (e) {
-      emit(BookingError('Payment failed: ${e.toString()}'));
-    }
-  }
-
-  Future<Map<String, dynamic>?> _createPaymentIntent(
-      ProcessPayment event) async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://your-backend-url.com/create-payment-intent'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'amount': (event.amount * 100).toInt(),
-          'currency': 'aed',
-          'payment_method_types': ['card'],
-        }),
+    } else if (event.paymentMethod == 'cash') {
+      // Cash payment logic
+      await _repository.updateBookingPayment(
+        event.bookingId,
+        'cash_${DateTime.now().millisecondsSinceEpoch}',
+        'pending_cash',
+        'cash',
       );
-
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to create payment intent');
-      }
-    } catch (e) {
-      throw Exception('Error creating payment intent: $e');
+      emit(PaymentSuccess('cash_payment'));
+      
+      // Add this to emit BookingCompleted after cash payment is successful
+      emit(BookingCompleted(bookingId: event.bookingId, totalAmount: event.totalAmount));
     }
+  } catch (e) {
+    emit(BookingError('Payment failed: ${e.toString()}'));
+  }
+}
+
+void _onCreateBookingAfterPayment(
+  CreateBookingAfterPayment event, 
+  Emitter<BookingState> emit
+) async {
+  emit(BookingLoading());
+
+  try {
+    // Ensure _tempBookingData is available before using it
+    if (_tempBookingData.isEmpty) {
+      emit(BookingError("Booking data is missing"));
+      return;
+    }
+
+    // Create a Booking object from the stored data
+    final booking = Booking(
+      id: event.tempBookingId,
+      userId: _tempBookingData['userId'] ?? '',
+      serviceId: _tempBookingData['serviceId'] ?? '',
+      serviceName: _tempBookingData['serviceName'] ?? '',
+      totalAmount: _tempBookingData['totalAmount'] ?? 0.0,
+      hours: _tempBookingData['hours'] ?? 1,
+      professionals: _tempBookingData['professionals'] ?? 1,
+      needMaterials: _tempBookingData['needMaterials'] ?? false,
+      instructions: _tempBookingData['instructions'] ?? '',
+      bookingDate: event.dateTime,
+      latitude: _lastLatitude ?? 0.0,  // Default to 0.0 to avoid errors
+      longitude: _lastLongitude ?? 0.0,
+      address: _fullAddress ?? "Unknown Address",
+      paymentStatus: 'completed',
+    );
+
+    // Call repository method to create booking in Firebase
+    final String bookingId = await _repository.createBookingsss(booking);
+
+    if (bookingId.isNotEmpty) {
+      emit(BookingSuccess(bookingId: bookingId, totalAmount: booking.totalAmount));
+    } else {
+      emit(BookingError("Failed to create booking"));
+    }
+  } catch (e) {
+    print("🔴 Error Creating Booking: $e");
+    emit(BookingError("An error occurred: ${e.toString()}"));
+  }
+}
+
+
+  void _onStoreBookingData(StoreBookingData event, Emitter<BookingState> emit) {
+    _tempBookingData = event.bookingData;
+    _tempBookingId = event.tempBookingId;
+    emit(BookingDataStored(_tempBookingId));
   }
 
-  // 🟢 Create Booking
-  Future<void> _onCreateBooking(
-      CreateBooking event, Emitter<BookingState> emit) async {
+  Future<void> _onCreateBooking(CreateBooking event, Emitter<BookingState> emit) async {
     emit(BookingLoading());
     try {
       final bookingId = await _repository.createBooking(event.booking);
+      print("🔹 Created Booking ID: $bookingId"); // Debugging
       if (bookingId.isNotEmpty) {
         _currentBookingId = bookingId;
-        emit(BookingSuccess(bookingId));
+        emit(BookingSuccess(bookingId: bookingId, totalAmount: event.booking.totalAmount)); 
       } else {
         emit(BookingError("Failed to create booking"));
       }
     } catch (e) {
+      print("Error Creating Booking: $e");
       emit(BookingError(e.toString()));
     }
   }
 
-  // 🟢 Load User Bookings
+  // Load User Bookings
   Future<void> _onLoadUserBookings(
       LoadUserBookings event, Emitter<BookingState> emit) async {
     emit(BookingLoading());
@@ -123,7 +197,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     }
   }
 
-  // 🟢 Update Booking Date/Time
+  // Update Booking Date/Time
   Future<void> _onUpdateBookingDateTime(
       UpdateBookingDateTime event, Emitter<BookingState> emit) async {
     try {
@@ -134,7 +208,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     }
   }
 
-  // 🟢 Update Booking Location
+  // Update Booking Location
   Future<void> _onUpdateBookingLocation(
       UpdateBookingLocation event, Emitter<BookingState> emit) async {
     try {
@@ -155,14 +229,14 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     }
   }
 
-  // 🟢 Confirm Booking Location
+  // Confirm Booking Location
   Future<void> _onConfirmBookingLocation(
       ConfirmBookingLocation event, Emitter<BookingState> emit) async {
     try {
-      if (_currentBookingId != null &&
+      if (event.bookingId.isNotEmpty &&
           _lastLatitude != null &&
           _lastLongitude != null) {
-        await _repository.confirmBookingLocation(_currentBookingId!);
+        await _repository.confirmBookingLocation(event.bookingId);
         emit(LocationUpdateSuccess());
       } else {
         emit(BookingError("Missing booking details or location data"));

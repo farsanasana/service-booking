@@ -10,9 +10,11 @@ import 'package:secondproject/features/Profile/data/repositories/firebase_user_r
 import 'package:secondproject/features/Profile/domain/usecases/get_user_profile.dart';
 import 'package:secondproject/features/Profile/presentation/bloc/profile_bloc.dart';
 import 'package:secondproject/features/Profile/presentation/pages/profile_screen.dart';
+import 'package:secondproject/features/booking/data/model/booking_model.dart';
 import 'package:secondproject/features/booking/data/repository/repository_booking.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_bloc.dart';
-import 'package:secondproject/features/booking/presentation/page/payment_screen.dart';
+import 'package:secondproject/features/booking/presentation/page/paymentconfirmation_screen.dart';
+import 'package:secondproject/features/booking/presentation/page/timeselection_screen.dart';
 import 'package:secondproject/features/google/google_sign_in/google_sign_in_bloc.dart';
 import 'package:secondproject/features/google/repositories_google_services.dart';
 import 'package:secondproject/features/home_logout/domain/repositories/auth_repository.dart';
@@ -43,35 +45,33 @@ import 'package:secondproject/features/signup/presentation/page/signup-page.dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
- // initProfileDependencies();
+  // initProfileDependencies();
 
- // Initialize Stripe
+  // Initialize Stripe
   Stripe.publishableKey = stripePublishKey;
+  await Stripe.instance.applySettings();
  
-
-
-final firebaseAuth = FirebaseAuth.instance;
-final firebaseStore=FirebaseFirestore.instance;
+  final firebaseAuth = FirebaseAuth.instance;
+  final firebaseStore = FirebaseFirestore.instance;
 
   // Initialize repositories
-final authenticationRepository  = AuthenticationRepository(firebaseAuth); // Correct repository
-final signUpRepository = FirebaseSignupRepository(firebaseAuth,firebaseStore);
-final logoutRepository = LogoutRepository();
-final userRepository = FirebaseUserRepository(firebaseStore);
+  final authenticationRepository = AuthenticationRepository(firebaseAuth); // Correct repository
+  final signUpRepository = FirebaseSignupRepository(firebaseAuth, firebaseStore);
+  final logoutRepository = LogoutRepository();
+  final userRepository = FirebaseUserRepository(firebaseStore);
 
- 
   // Initialize use cases
-final loginUseCase = LoginUseCase(authenticationRepository); // Use correct repository for login
-final signupUseCase = SignupUser(signUpRepository);
-final logoutUseCase = LogoutUseCase(logoutRepository);
-final getUserProfile = GetUserProfile(userRepository); 
+  final loginUseCase = LoginUseCase(authenticationRepository); // Use correct repository for login
+  final signupUseCase = SignupUser(signUpRepository);
+  final logoutUseCase = LogoutUseCase(logoutRepository);
+  final getUserProfile = GetUserProfile(userRepository); 
   
   runApp(MyApp(
-   loginUseCase: loginUseCase,
-   signupUseCase: signupUseCase,
-   logoutUseCase: logoutUseCase,  
-   getUserProfile:getUserProfile,
-   firestore: firebaseStore,  
+    loginUseCase: loginUseCase,
+    signupUseCase: signupUseCase,
+    logoutUseCase: logoutUseCase,  
+    getUserProfile: getUserProfile,
+    firestore: firebaseStore,  
   ));
 }
 
@@ -88,68 +88,64 @@ class MyApp extends StatelessWidget {
     required this.signupUseCase,
     required this.logoutUseCase,
     required this.getUserProfile, 
-    required this. firestore,
-    
+    required this.firestore,
   });
 
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<ServicesRepository>(create: (context)=>ServicesRepositoryImpl(firestore),)
+        RepositoryProvider<ServicesRepository>(
+          create: (context) => ServicesRepositoryImpl(firestore),
+        )
       ],
       child: MultiBlocProvider(
         providers: [
           Provider<GetUserProfile>.value(value: getUserProfile),
-         BlocProvider(
-      create: (context) => BookingBloc(
-        BookingRepository(),
-      ),
-    ),
-      BlocProvider(create: (_) => OfferBannerBloc(firestore: FirebaseFirestore.instance)..add(const LoadBannerImages())),
+          BlocProvider(
+            create: (context) => BookingBloc(
+              BookingRepository(),
+            ),
+          ),
+          BlocProvider(
+            create: (_) => OfferBannerBloc(firestore: FirebaseFirestore.instance)..add(const LoadBannerImages())
+          ),
           BlocProvider(create: (_) => LoginBloc(loginUseCase)),
-               BlocProvider<BannerBloc>(
-          create: (context) => BannerBloc()),
-        
-               
+          BlocProvider<BannerBloc>(
+            create: (context) => BannerBloc()
+          ),
           BlocProvider(create: (_) => SignupBloc(signupUseCase)),   
           BlocProvider(create: (_) => LogoutBloc(logoutUseCase)),
           BlocProvider(create: (_) => GoogleSignInBloc(GoogleSignInService())),
-          BlocProvider(create: (_)=>ProfileBloc(getUserProfile)),
-        
+          BlocProvider(create: (_) => ProfileBloc(getUserProfile)),
           BlocProvider(
-            create: (context) => ServicesBloc(context.read<ServicesRepository>())),
-          
+            create: (context) => ServicesBloc(context.read<ServicesRepository>())
+          ),
           BlocProvider(
-            create: (context) => ImageBloc(),),
-           
-        
+            create: (context) => ImageBloc(),
+          ),
           BlocProvider(create: (_) => NavigationBloc()),
-            // RepositoryProvider<HomeRepository>(create: (_) => HomeRepository()),
-          
+          // RepositoryProvider<HomeRepository>(create: (_) => HomeRepository()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           initialRoute: '/onboarding',
-          routes: {
-            '/onboarding': (context) => const OnboardingPage(),
-            '/login': (context) => LoginPage(),
-      
-              '/booking/step4': (context) {
-            // Extract the booking ID and total amount from arguments
-            final Map<String, dynamic> args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??{'bookingID':'','totalAmount':0.0,};
-            
-            return PaymentScreen(
-              bookingId: args['bookingId'] as String? ?? '',
-    totalAmount: (args['totalAmount'] as num?)?.toDouble() ?? 0.0,
-            );
-          },
-            '/signup': (context) => SignupPage(),
-            '/home': (context) => HomePage(),
-            '/profile':(context)=>ProfilePage(),
-            '/forget_pass':(context)=>ForgotPassword(),
-            
-          },
+routes: {
+  '/onboarding': (context) => const OnboardingPage(),
+  '/login': (context) => LoginPage(),
+  '/signup': (context) => SignupPage(),
+  '/home': (context) => HomePage(),
+  '/profile': (context) => ProfilePage(),
+  '/forget_pass': (context) => ForgotPassword(),
+  '/booking/confirmation': (context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+    return BookingConfirmationScreen(
+      bookingId: args?['bookingId'] ?? '',
+      totalAmount: args?['totalAmount'] ?? 0.0,
+      serviceName: args?['serviceName'] ?? '',
+    );
+  },
+},
         ),
       ),
     );

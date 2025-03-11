@@ -38,8 +38,8 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
         categories: categories,
         services: services,
       ));
-    } catch (e, stackTrace) {
-      log('Error loading categories and services', error: e, stackTrace: stackTrace);
+    } catch (e) {
+      
       emit(ServicesError(
         'Failed to load data. Please check your connection and try again.',
         technicalDetails: e.toString(),
@@ -67,8 +67,8 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       emit(ServicesCategoriesLoaded(
         categories: categories,
       ));
-    } catch (e, stackTrace) {
-      log('Error loading categories', error: e, stackTrace: stackTrace);
+    } catch (e) {
+     
       emit(ServicesError(
         'Failed to load categories',
         technicalDetails: e.toString(),
@@ -90,8 +90,8 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
         categories: categories,
         services: services,
       ));
-    } catch (e, stackTrace) {
-      log('Error loading services by category', error: e, stackTrace: stackTrace);
+    } catch (e) {
+   
       emit(ServicesError(
         'Failed to load services for this category',
         technicalDetails: e.toString(),
@@ -109,8 +109,8 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       try {
         final services = await _repository.getAllServices();
         emit(currentState.copyWith(services: services));
-      } catch (e, stackTrace) {
-        log('Error loading all services', error: e, stackTrace: stackTrace);
+      } catch (e) {
+      
         emit(ServicesError(
           'Failed to load services',
           technicalDetails: e.toString(),

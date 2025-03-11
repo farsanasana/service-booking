@@ -15,7 +15,10 @@ class UpdateBookingLocation extends BookingEvent {
   UpdateBookingLocation({required this.latitude, required this.longitude});
 }
 
-class ConfirmBookingLocation extends BookingEvent {}
+class ConfirmBookingLocation extends BookingEvent {
+  final String bookingId;
+  ConfirmBookingLocation({required this.bookingId});
+}
 class UpdateBookingDateTime extends BookingEvent {
   final String bookingId;
   final DateTime dateTime;
@@ -28,13 +31,19 @@ class UpdateBookingDateTime extends BookingEvent {
 class ProcessPayment extends BookingEvent {
   final String bookingId;
   final String paymentMethod;
-  final double amount;
+  final double totalAmount;
 
   ProcessPayment({
     required this.bookingId,
     required this.paymentMethod,
-    required this.amount,
+    required this.totalAmount,
   });
+}
+class StoreBookingData extends BookingEvent {
+  final Map<String, dynamic> bookingData;
+  final String tempBookingId;
+  
+  StoreBookingData(this.bookingData, this.tempBookingId);
 }
 class UpdateBookingSelection extends BookingEvent {
   final int? selectedHours;
@@ -50,4 +59,13 @@ class UpdateBookingSelection extends BookingEvent {
   });
 }
 
-
+class CreateBookingAfterPayment extends BookingEvent {
+  final String tempBookingId;
+  final DateTime dateTime;
+  
+  CreateBookingAfterPayment({
+    required this.tempBookingId,
+    required this.dateTime,
+  });
+  
+}

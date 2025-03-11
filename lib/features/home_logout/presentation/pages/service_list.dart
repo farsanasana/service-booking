@@ -23,7 +23,7 @@ class ServiceListPage extends StatelessWidget {
       ),
       body: BlocProvider(
         create: (context) {
-          developer.log('Creating ServicesBloc for category: ${category.id}');
+         
           return ServicesBloc(context.read<ServicesRepository>())
             ..add(LoadServicesByCategory(category.id));
         },

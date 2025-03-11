@@ -11,7 +11,7 @@ class PaymentDetails {
     required this.transactionId,
     required this.status,
     required this.method,
-    required this.timestamp,
+    required this.timest
   });
 
   Map<String, dynamic> toMap() {

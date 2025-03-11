@@ -80,7 +80,16 @@ final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
                 );
       }
                 
-              }), SizedBox(height: 10,),
+              },() {
+               BlocProvider.of<LoginBloc>(context).add(
+                  LoginRequested(
+                    'farsa@gmail.com',
+                    '123123',
+                  ),
+                );
+      }
+
+              ), SizedBox(height: 10,),
                   Text('Or'),
                   SizedBox(height: 20,),
                   BlocConsumer<GoogleSignInBloc, GoogleSignInState>(

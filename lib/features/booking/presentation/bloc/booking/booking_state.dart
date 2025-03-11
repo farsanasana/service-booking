@@ -1,14 +1,20 @@
 import 'package:secondproject/features/booking/data/model/booking_model.dart';
 
 abstract class BookingState {}
-
+class BookingCompleted extends BookingState {
+  final String bookingId;
+  final double totalAmount;
+  
+  BookingCompleted({required this.bookingId, required this.totalAmount});
+}
 
 
 class BookingLoading extends BookingState {}
 
 class BookingSuccess extends BookingState {
   final String bookingId;
-  BookingSuccess(this.bookingId);
+   final double totalAmount;
+  BookingSuccess( {required this.bookingId,required this.totalAmount});
 }
 
 class BookingError extends BookingState {
@@ -75,4 +81,8 @@ class BookingInitial extends BookingState {
       serviceName: serviceName ?? this.serviceName,
     );
   }
+}class BookingDataStored extends BookingState {
+  final String tempBookingId;
+  
+  BookingDataStored(this.tempBookingId);
 }

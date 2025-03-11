@@ -1,21 +1,30 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:secondproject/core/constand/api.dart';
+import 'package:secondproject/features/booking/presentation/page/paymentconfirmation_screen.dart';
 import 'package:secondproject/features/booking/presentation/page/timeselection_screen.dart';
 import '../bloc/booking/booking_bloc.dart';
 import '../bloc/booking/booking_event.dart';
 import '../bloc/booking/booking_state.dart';
+import "package:http/http.dart" as http;
+import 'dart:convert';
+
 
 class LocationConfirmationScreen extends StatefulWidget {
-  final String bookingId;
-
+  final String tempBookingId;
+   final String totalAmount;
+final String serviceName;
   const LocationConfirmationScreen({
-    Key? key, 
-    required this.bookingId,
-  }) : super(key: key);
+    super.key, 
+    required this.tempBookingId,
+    required this.totalAmount, required this.serviceName, 
+  });
 
   @override
   State<LocationConfirmationScreen> createState() => _LocationConfirmationScreenState();
@@ -29,9 +38,12 @@ class _LocationConfirmationScreenState extends State<LocationConfirmationScreen>
   String _shortAddress = '';
   bool _isLoadingLocation = false;
 
+
   @override
   void initState() {
     super.initState();
+       log('LocationConfirmationScreen - Booking ID: ${widget.tempBookingId}');
+    log('LocationConfirmationScreen - Total Amount: ${widget.totalAmount}');
     _getCurrentLocation();
   }
 
@@ -119,22 +131,48 @@ class _LocationConfirmationScreenState extends State<LocationConfirmationScreen>
         SnackBar(content: Text('Error getting address: $e')),
       );
     }
+    
   }
 
-  void _searchLocation(String query) {
-    // Implement search functionality
-    // This would typically use the Google Places API
+Future<void> _searchLocation(String query) async {
+  
+  if (query.isEmpty) return;
+
+  final Uri url = Uri.parse(
+      'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$query&key=$apiKey&components=country:ae');
+
+  try {
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic>? predictions = data['predictions'];
+
+      if (predictions != null && predictions.isNotEmpty) {
+        setState(() {
+        });
+      } else {
+        setState(() {
+        });
+      }
+    } else {
+      throw Exception("Failed to fetch data: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("Error fetching location suggestions: $e");
   }
+}
 
   @override
   Widget build(BuildContext context) {
+     print("TimeSelectionScreen - bookingId: ${widget.tempBookingId}");
     return BlocConsumer<BookingBloc, BookingState>(
       listener: (context, state) {
         if (state is LocationUpdateSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location confirmed successfully!')),
           );
-          Navigator.pushNamed(context, '/booking/step3');
+       
         } else if (state is BookingError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -336,27 +374,36 @@ class _LocationConfirmationScreenState extends State<LocationConfirmationScreen>
                           onPressed: () async {
                             // Save location to booking
                          try {
-   await FirebaseFirestore.instance.collection('bookings').doc(widget.bookingId).update({
-     'latitude': _selectedLocation.latitude,
-     'longitude': _selectedLocation.longitude,
-     'address': _fullAddress,
-     'locationConfirmed': true,
-   });
+ await FirebaseFirestore.instance.collection('bookingsTemp').doc(widget.tempBookingId).set({
+  'latitude': _selectedLocation.latitude,
+  'longitude': _selectedLocation.longitude,
+  'address': _fullAddress,
+  'locationConfirmed': true,
+}, 
+SetOptions(merge: true),);
+
+  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => 
+                      // BookingConfirmationScreen(
+                      //   bookingId: '1',
+                      //   serviceName: "varun",
+                      //   totalAmount: 666, 
+                      // ),
+                      TimeSelectionScreen(
+                        tempBookingId: widget.tempBookingId, 
+                        totalAmount: widget.totalAmount, serviceName: widget.serviceName
+                      ),
+                    ),
+                  );
+
 } catch (e) {
    ScaffoldMessenger.of(context).showSnackBar(
      SnackBar(content: Text('Failed to update Firestore: $e')),
    );
 }
-
-                            context.read<BookingBloc>().add(ConfirmBookingLocation());
-                              Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => TimeSelectionScreen(
-        bookingId: widget.bookingId, totalAmount: '',  // Ensure the booking ID is passed here
-      ),
-    ),
-  );
+                        
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.deepOrange,
