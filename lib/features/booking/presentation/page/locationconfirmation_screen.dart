@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,8 +42,6 @@ class _LocationConfirmationScreenState extends State<LocationConfirmationScreen>
   @override
   void initState() {
     super.initState();
-       log('LocationConfirmationScreen - Booking ID: ${widget.tempBookingId}');
-    log('LocationConfirmationScreen - Total Amount: ${widget.totalAmount}');
     _getCurrentLocation();
   }
 

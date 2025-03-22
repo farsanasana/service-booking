@@ -1,8 +1,8 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:secondproject/core/constand/ColorsSys.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_bloc.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_event.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_state.dart';
@@ -42,84 +42,7 @@ class _TimeSelectionScreenState extends State<TimeSelectionScreen> {
       selectedDate = date;
     });
   }
-/*
-// void _onNextPressed() {
-//   if (widget.tempBookingId.trim().isEmpty) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(
-//         content: Text('Error: Booking ID cannot be empty'),
-//         backgroundColor: Colors.red,
-//       ),
-//     );
-//     return;
-//   }
 
-//   if (selectedTime.isEmpty) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(
-//         content: Text('Please select a time'),
-//         backgroundColor: Colors.red,
-//       ),
-//     );
-//     return;
-//   }
-
-//   try {
-//     // Parse time and create datetime
-//     List<String> timeParts = selectedTime.split('-');
-//     String startTime = timeParts[0];
-
-//     List<String> hourMinute = startTime.split(':');
-//     int hour = int.parse(hourMinute[0]);
-//     int minute = int.parse(hourMinute[1]);
-
-//     final dateTime = DateTime(
-//       selectedDate.year,
-//       selectedDate.month,
-//       selectedDate.day,
-//       hour,
-//       minute,
-//     );
-
-//     // Add the selected date and time to the booking data
-//     context.read<BookingBloc>().add(UpdateBookingDateTime(
-//       bookingId: widget.tempBookingId, // Use tempBookingId here
-//       dateTime: dateTime,
-//     ));
-
-//     // Call makepayment with a callback to create booking on success
-//     StripeServices.instance.makepayment(
-//       widget.totalAmount,
-//       onSuccess: () {
-//         // Create the actual booking in Firestore after payment success
-//         context.read<BookingBloc>().add(CreateBookingAfterPayment(
-//           tempBookingId: widget.tempBookingId,
-//           dateTime: dateTime,
-//         ));
-
-//         // Navigate to confirmation screen
-//       Navigator.pushReplacementNamed(
-//   context,
-//   '/booking/confirmation',
-//   arguments: {
-//     'bookingId': widget.tempBookingId,
-//     'totalAmount': double.parse(widget.totalAmount),
-//     'serviceName': widget.serviceName,
-//   },
-// );
-//       },
-//     );
-//   } catch (e) {
-//     log('Debug: Error processing time - $e');
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(
-//         content: Text('Error processing time: $e'),
-//         backgroundColor: Colors.red,
-//       ),
-//     );
-//   }
-// }
-*/
 void _onNextPressed() {
   if (widget.tempBookingId.trim().isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -206,7 +129,6 @@ void _onNextPressed() {
       },
     );
   } catch (e) {
-    log('Debug: Error processing time - $e');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error processing time: $e'),
@@ -252,7 +174,7 @@ void _onNextPressed() {
                       width: 60,
                       margin: const EdgeInsets.only(right: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.cyan : Colors.grey[200],
+                        color: isSelected ? ColorSys.secoundry: Colors.grey[200],
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -295,7 +217,7 @@ void _onNextPressed() {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
-                      color: isSelected ? Colors.cyan : Colors.grey[200],
+                      color: isSelected ?ColorSys.secoundry: Colors.grey[200],
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: Text(

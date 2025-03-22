@@ -6,7 +6,7 @@ class SignupUser {
 
   SignupUser(this.repository);
 
-  Future<void> call(UserEntity user) {
+  Future<void> call(Usermodel user) {
     return repository.signupUser(user);
   }
 }

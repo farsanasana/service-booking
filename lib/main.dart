@@ -13,6 +13,7 @@ import 'package:secondproject/features/Profile/presentation/pages/profile_screen
 import 'package:secondproject/features/booking/data/model/booking_model.dart';
 import 'package:secondproject/features/booking/data/repository/repository_booking.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_bloc.dart';
+import 'package:secondproject/features/booking/presentation/page/bookingss/booking_detailed_screen.dart';
 import 'package:secondproject/features/booking/presentation/page/paymentconfirmation_screen.dart';
 import 'package:secondproject/features/booking/presentation/page/timeselection_screen.dart';
 import 'package:secondproject/features/google/google_sign_in/google_sign_in_bloc.dart';
@@ -136,8 +137,22 @@ routes: {
   '/signup': (context) => SignupPage(),
   '/home': (context) => HomePage(),
   '/profile': (context) => ProfilePage(),
-  '/forget_pass': (context) => ForgotPassword(),
+  '/forget_pass': (context) => ForgotPassword(),  
+    '/booking_details': (context) {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+     final passedUserId = args?['userId'] ?? userId;
+    if (passedUserId == null) {
+    // Redirect to login if no user ID is available
+    return LoginPage();
+  }
+  
+  return BookingDetailedScreen(
+    userId: passedUserId,
+  );
+},
   '/booking/confirmation': (context) {
+    
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
     return BookingConfirmationScreen(
       bookingId: args?['bookingId'] ?? '',
@@ -145,9 +160,4 @@ routes: {
       serviceName: args?['serviceName'] ?? '',
     );
   },
-},
-        ),
-      ),
-    );
-  }
-}
+},),),);}}

@@ -23,7 +23,7 @@ class BookingError extends BookingState {
 }
 
 class BookingsLoaded extends BookingState {
-  final List<Booking> bookings;
+  final List<Map<String, dynamic>> bookings;
   BookingsLoaded(this.bookings);
 }
 
@@ -85,4 +85,8 @@ class BookingInitial extends BookingState {
   final String tempBookingId;
   
   BookingDataStored(this.tempBookingId);
+}
+class BookingStatusUpdated extends BookingState {
+  final String status;
+  BookingStatusUpdated(this.status);
 }

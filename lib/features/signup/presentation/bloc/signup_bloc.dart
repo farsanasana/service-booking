@@ -20,7 +20,7 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     emit(SignupLoading());
     try {
       // Call the signup use case
-      await signupUser.call(UserEntity(
+      await signupUser.call(Usermodel(
         email: event.email,
         password: event.password,
         username: event.username,

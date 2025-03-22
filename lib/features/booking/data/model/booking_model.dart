@@ -2,23 +2,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:secondproject/features/booking/data/model/payment_model.dart';
 
 class Booking {
+
   final String id;
   final String userId;
   final String serviceId;
   final String serviceName;
   final double totalAmount;
+  final String bookingStatus;
   final int hours;
-  final int professionals;
+  final String professionals;
   final bool needMaterials;
   final String instructions;
   final DateTime bookingDate;
   final double? latitude;
   final double? longitude;
-  final String? address;
   final bool locationConfirmed;
   final DateTime? scheduledDateTime;
   final PaymentDetails? paymentDetails;
   final String paymentStatus;
+  String? serviceProviderId;
+  String? serviceProviderName;
 
   Booking({
     required this.id,
@@ -34,10 +37,12 @@ class Booking {
     required this.paymentStatus,
     this.latitude,
     this.longitude,
-    this.address,
     this.locationConfirmed = false,
     this.scheduledDateTime,
     this.paymentDetails,
+    this.serviceProviderId, 
+    this.serviceProviderName,
+    required this.bookingStatus,
   });
 
   Map<String, dynamic> toMap() {
@@ -54,42 +59,60 @@ class Booking {
       'bookingDate': Timestamp.now(),
       'latitude': latitude,
       'longitude': longitude,
-      'address': address,
       'locationConfirmed': locationConfirmed,
       'scheduledDateTime': scheduledDateTime != null 
-          ? Timestamp.fromDate(scheduledDateTime!) 
-          : null,
+          ? Timestamp.fromDate(scheduledDateTime!): null,
       'paymentDetails': paymentDetails?.toMap(),
       'paymentStatus': paymentStatus,
+      'serviceProviderId': serviceProviderId,
+      'serviceProviderName': serviceProviderName,
+      'bookingStatus':bookingStatus,
     };
   }
 
-  factory Booking.fromMap(Map<String, dynamic> map) {
-    return Booking(
-      id: map['id'] ?? '',
-      userId: map['userId'] ?? '',
-      serviceId: map['serviceId'] ?? '',
-      serviceName: map['serviceName'] ?? '',
-      totalAmount: map['totalAmount']?.toDouble() ?? 0.0,
-      hours: map['hours']?.toInt() ?? 0,
-      professionals: map['professionals']?.toInt() ?? 0,
-      needMaterials: map['needMaterials'] ?? false,
-      instructions: map['instructions'] ?? '',
-      bookingDate: (map['bookingDate'] as Timestamp).toDate(),
-      latitude: map['latitude']?.toDouble(),
-      longitude: map['longitude']?.toDouble(),
-      address: map['address'],
-      locationConfirmed: map['locationConfirmed'] ?? false,
-      scheduledDateTime: map['scheduledDateTime'] != null 
-          ? (map['scheduledDateTime'] as Timestamp).toDate() 
-          : null,
-      paymentDetails: map['paymentDetails'] != null
-          ? PaymentDetails.fromMap(map['paymentDetails'])
-          : null,
-      paymentStatus: map['paymentStatus'] ?? '',
-    );
+ factory Booking.fromMap(Map<String, dynamic> map) {
+  // Helper function for safely converting Timestamp/String to DateTime
+  DateTime? parseDateTime(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    } else if (value is String) {
+      return DateTime.parse(value);
+    } else if (value == null) {
+      return null;
+    }
+    // Default fallback
+    return DateTime.now();
   }
 
+  return Booking(
+    id: map['id'] ?? '',
+    userId: map['userId'] ?? '',
+    serviceId: map['serviceId'] ?? '',
+    serviceName: map['serviceName'] ?? '',
+    totalAmount: map['totalAmount']?.toDouble() ?? 0.0,
+    hours: map['hours']?.toInt() ?? 0,
+    professionals: map['professionals']?.toInt() ?? 0,
+    needMaterials: map['needMaterials'] ?? false,
+    instructions: map['instructions'] ?? '',
+    bookingDate: map['bookingDate'] != null 
+        ? parseDateTime(map['bookingDate']) ?? DateTime.now()
+        : DateTime.now(),
+    latitude: map['latitude']?.toDouble(),
+    longitude: map['longitude']?.toDouble(),
+    locationConfirmed: map['locationConfirmed'] ?? false,
+    scheduledDateTime: map['scheduledDateTime'] != null 
+        ? parseDateTime(map['scheduledDateTime'])
+        : null,
+    paymentDetails: map['paymentDetails'] != null
+        ? PaymentDetails.fromMap(map['paymentDetails'])
+        : null,
+    paymentStatus: map['paymentStatus'] ?? '',
+    serviceProviderId: map['serviceProviderId'],
+    serviceProviderName: map['serviceProviderName'],
+    bookingStatus:map['bookingStatus'],
+    
+  );
+}
   Booking copyWith({
     String? id,
     String? userId,
@@ -97,17 +120,19 @@ class Booking {
     String? serviceName,
     double? totalAmount,
     int? hours,
-    int? professionals,
+    String? professionals,
     bool? needMaterials,
     String? instructions,
     DateTime? bookingDate,
     double? latitude,
     double? longitude,
-    String? address,
     bool? locationConfirmed,
     DateTime? scheduledDateTime,
     PaymentDetails? paymentDetails,
     String? paymentStatus,
+    String? serviceProviderId,
+    String? serviceProviderName,
+    String?bookingStatus,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -122,11 +147,13 @@ class Booking {
       bookingDate: bookingDate ?? this.bookingDate,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
-      address: address ?? this.address,
+      serviceProviderId: serviceProviderId ?? this.serviceProviderId,
+      serviceProviderName: serviceProviderName ?? this.serviceProviderName,
       locationConfirmed: locationConfirmed ?? this.locationConfirmed,
       scheduledDateTime: scheduledDateTime ?? this.scheduledDateTime,
       paymentDetails: paymentDetails ?? this.paymentDetails,
       paymentStatus: paymentStatus ?? this.paymentStatus,
+      bookingStatus:bookingStatus??this.bookingStatus,
     );
   }
 }

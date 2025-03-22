@@ -67,5 +67,20 @@ class CreateBookingAfterPayment extends BookingEvent {
     required this.tempBookingId,
     required this.dateTime,
   });
+}
+class FetchBookingDetails extends BookingEvent {
+  final String userId;
   
+  FetchBookingDetails({required this.userId});
+}
+class UpdateBookingStatus extends BookingEvent {
+  final String bookingId;
+  final String bookingStatus; // pending, completed, cancelled
+  UpdateBookingStatus(this.bookingId, this.bookingStatus, );
+}
+
+class UpdatePaymentStatus extends BookingEvent {
+  final String bookingId;
+  final String status; // unpaid, paid, failed
+  UpdatePaymentStatus(this.bookingId, this.status);
 }

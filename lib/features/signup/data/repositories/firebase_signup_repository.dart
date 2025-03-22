@@ -11,7 +11,7 @@ final FirebaseFirestore   _firestore;
   FirebaseSignupRepository(this._firebaseAuth,this._firestore,);
   
   @override
-  Future<void> signupUser(UserEntity user) async{
+  Future<void> signupUser(Usermodel user) async{
     UserCredential userCredential=await _firebaseAuth.createUserWithEmailAndPassword(email: user.email, password: user.password);
   
   

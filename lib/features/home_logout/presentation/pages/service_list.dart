@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:secondproject/features/home_logout/domain/entities/category.dart';
 import 'package:secondproject/features/home_logout/domain/entities/service.dart';
-import 'dart:developer' as developer;
 
 import 'package:secondproject/features/home_logout/domain/repositories/service_repository.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/service/service_bloc.dart';

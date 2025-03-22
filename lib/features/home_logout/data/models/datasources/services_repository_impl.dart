@@ -1,5 +1,4 @@
 
-import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:secondproject/features/home_logout/data/models/service_model.dart';
 import 'package:secondproject/features/home_logout/domain/entities/category.dart';
@@ -27,8 +26,7 @@ class ServicesRepositoryImpl implements ServicesRepository {
           createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
         );
       }).toList();
-    } catch (e, stackTrace) {
-      log('Error fetching categories', error: e, stackTrace: stackTrace);
+    } catch (e) {
       throw Exception('Failed to fetch categories: $e');
     }
   }
@@ -63,7 +61,6 @@ class ServicesRepositoryImpl implements ServicesRepository {
 @override
 Future<List<Service>> getAllServices() async {
   try {
-    log('Fetching all services from Firestore');
 
     // Step 1: Get all categories
     final categorySnapshot = await _firestore.collection('categories').get();
@@ -81,17 +78,14 @@ Future<List<Service>> getAllServices() async {
           .get();
       
       final services = serviceSnapshot.docs.map((doc) {
-        log('Processing document ${doc.id}: ${doc.data()}');
         return ServiceModel.fromFirestore(doc);
       }).toList();
       
       allServices.addAll(services);
     }
 
-    log('Successfully fetched ${allServices.length} services');
     return allServices;
-  } catch (e, stackTrace) {
-    log('Error fetching all services', error: e, stackTrace: stackTrace);
+  } catch (e) {
     throw Exception('Failed to fetch all services: $e');
   }
 }

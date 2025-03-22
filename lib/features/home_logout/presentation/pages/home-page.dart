@@ -1,8 +1,11 @@
-// ignore_for_file: deprecated_member_use
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:secondproject/features/Profile/presentation/pages/profile_screen.dart';
+import 'package:secondproject/features/booking/presentation/bloc/booking/booking_bloc.dart';
+import 'package:secondproject/features/booking/presentation/bloc/booking/booking_state.dart';
+import 'package:secondproject/features/booking/presentation/page/bookingss/booking_detailed_screen.dart';
+import 'package:secondproject/features/booking/presentation/page/bookingss/booking_section.dart';
 import 'package:secondproject/features/home_logout/domain/entities/category.dart';
 import 'package:secondproject/features/home_logout/domain/entities/service.dart';
 import 'package:secondproject/features/home_logout/domain/repositories/service_repository.dart';
@@ -110,18 +113,28 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, NavigationState navigationState) {
-    switch (navigationState.selectedTab) {
-      case NavigationTab.home:
-        return _buildHomeContent(context);
-      case NavigationTab.schedule:
-        return Center(child: Text('Schedule Page'));
-      case NavigationTab.payments:
-        return Center(child: Text('Payments Page'));
-      case NavigationTab.profile:
-        return ProfilePage();
+Widget _buildBody(BuildContext context, NavigationState navigationState) {
+  switch (navigationState.selectedTab) {
+    case NavigationTab.home:
+      return _buildHomeContent(context);
+
+    case NavigationTab.booking_details:
+    // Get the current user's ID dynamically
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    // If user is not logged in, show login page or a message
+    if (userId == null) {
+      return Center(child: Text('Please log in to view your bookings'));
+      // Or navigate to login: return LoginPage();
     }
+    return BookingDetailedScreen(userId: userId);
+    case NavigationTab.payments:
+      return Center(child: Text('Payments Page'));
+
+    case NavigationTab.profile:
+      return ProfilePage();
   }
+}
+
 
   Widget _buildHomeContent(BuildContext context) {
     return BlocBuilder<ServicesBloc, ServicesState>(

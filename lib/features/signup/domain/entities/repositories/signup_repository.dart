@@ -4,5 +4,5 @@ import 'package:secondproject/features/signup/domain/entities/user_entity.dart';
 abstract class SignupRepository {
   SignupRepository(FirebaseStorage instance);
 
-  Future<void> signupUser(UserEntity user);
+  Future<void> signupUser(Usermodel user);
 }

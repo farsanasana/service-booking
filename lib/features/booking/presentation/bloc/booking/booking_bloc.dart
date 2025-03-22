@@ -1,4 +1,7 @@
 import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
@@ -19,15 +22,80 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
 
   BookingBloc(this._repository) : super(BookingInitial(serviceId: '', serviceName: '')) {
     on<CreateBooking>(_onCreateBooking);
+    on<FetchBookingDetails>(_onFetchBookingDetails); 
     on<CreateBookingAfterPayment>(_onCreateBookingAfterPayment); // Fixed typo 'n<' to 'on<'
-    on<LoadUserBookings>(_onLoadUserBookings);
+    //on<LoadUserBookings>(_onLoadUserBookings);
     on<UpdateBookingLocation>(_onUpdateBookingLocation);
     on<ConfirmBookingLocation>(_onConfirmBookingLocation);
     on<UpdateBookingDateTime>(_onUpdateBookingDateTime);
     on<ProcessPayment>(_onProcessPayment);
     on<StoreBookingData>(_onStoreBookingData);
     on<UpdateBookingSelection>(_onUpdateBookingSelection);
+on<UpdateBookingStatus>(_onUpdateBookingStatus);
+
+
   }
+
+
+// Inside BookingBloc class, modify the _onFetchBookingDetails method:
+
+Future<void> _onFetchBookingDetails(FetchBookingDetails event, Emitter<BookingState> emit) async {
+  emit(BookingLoading());
+  try {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('bookings')
+        .where('userId', isEqualTo: event.userId)
+        .get();
+
+    List<Map<String, dynamic>> bookings = [];
+    
+    // Process each booking document
+    for (var doc in snapshot.docs) {
+      var data = doc.data();
+      data['id'] = doc.id;
+      
+      // Ensure address is included properly
+      if (data['address'] == null || data['address'].toString().isEmpty) {
+        if (data['latitude'] != null && data['longitude'] != null) {
+          data['address'] = 'Location: (${data['latitude']}, ${data['longitude']})';
+        } else {
+          data['address'] = 'No address provided';
+        }
+      }
+      
+      // Fetch service provider name if serviceProviderId exists
+      if (data['serviceProviderId'] != null) {
+        try {
+          final serviceProviderDoc = await FirebaseFirestore.instance
+              .collection('serviceProviders')
+              .doc(data['serviceProviderId'])
+              .get();
+              
+          if (serviceProviderDoc.exists) {
+            data['serviceProviderName'] = serviceProviderDoc.data()?['name'] ?? "Unknown Provider";
+          } else {
+            data['serviceProviderName'] = "Provider Not Found";
+          }
+        } catch (e) {
+          print("Error fetching service provider: $e");
+          data['serviceProviderName'] = "Error Loading Provider";
+        }
+      } else {
+        data['serviceProviderName'] = "No Provider Assigned";
+      }
+      
+      bookings.add(data);
+    }
+
+    if (bookings.isNotEmpty) {
+      emit(BookingsLoaded(bookings));
+    } else {
+      emit(BookingError('No bookings found'));
+    }
+  } catch (e) {
+    emit(BookingError('Failed to fetch bookings: ${e.toString()}'));
+  }
+}
 
   // Update Selection (Hours, Professionals, Materials, Instructions)
   void _onUpdateBookingSelection(
@@ -143,8 +211,8 @@ void _onCreateBookingAfterPayment(
       bookingDate: event.dateTime,
       latitude: _lastLatitude ?? 0.0,  // Default to 0.0 to avoid errors
       longitude: _lastLongitude ?? 0.0,
-      address: _fullAddress ?? "Unknown Address",
       paymentStatus: 'completed',
+       bookingStatus: _tempBookingData['bookingStatus'],
     );
 
     // Call repository method to create booking in Firebase
@@ -185,19 +253,7 @@ void _onCreateBookingAfterPayment(
     }
   }
 
-  // Load User Bookings
-  Future<void> _onLoadUserBookings(
-      LoadUserBookings event, Emitter<BookingState> emit) async {
-    emit(BookingLoading());
-    try {
-      final bookings = await _repository.getUserBookings();
-      emit(BookingsLoaded(bookings));
-    } catch (e) {
-      emit(BookingError(e.toString()));
-    }
-  }
-
-  // Update Booking Date/Time
+ 
   Future<void> _onUpdateBookingDateTime(
       UpdateBookingDateTime event, Emitter<BookingState> emit) async {
     try {
@@ -245,4 +301,21 @@ void _onCreateBookingAfterPayment(
       emit(BookingError("Failed to confirm location: ${e.toString()}"));
     }
   }
+Future<void> _onUpdateBookingStatus(UpdateBookingStatus event, Emitter<BookingState> emit) async {
+  try {
+    emit(BookingLoading());
+
+    await FirebaseFirestore.instance
+        .collection('bookings')
+        .doc(event.bookingId)
+        .update({'bookingStatus': event.bookingStatus}); // Update only bookingStatus
+
+    emit(BookingStatusUpdated(event.bookingStatus));
+  } catch (e) {
+    emit(BookingError("Failed to update booking status: ${e.toString()}"));
+  }
+}
+
+
+
 }
