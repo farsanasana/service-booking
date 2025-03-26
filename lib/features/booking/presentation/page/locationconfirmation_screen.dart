@@ -384,11 +384,7 @@ SetOptions(merge: true),);
                     context,
                     MaterialPageRoute(
                       builder: (context) => 
-                      // BookingConfirmationScreen(
-                      //   bookingId: '1',
-                      //   serviceName: "varun",
-                      //   totalAmount: 666, 
-                      // ),
+                     
                       TimeSelectionScreen(
                         tempBookingId: widget.tempBookingId, 
                         totalAmount: widget.totalAmount, serviceName: widget.serviceName

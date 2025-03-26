@@ -1,13 +1,15 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:secondproject/core/constand/ColorsSys.dart';
 import 'package:secondproject/features/Profile/domain/usecases/get_user_profile.dart';
 import 'package:secondproject/features/Profile/presentation/bloc/profile_bloc.dart';
 import 'package:secondproject/features/Profile/presentation/bloc/profile_event.dart';
 import 'package:secondproject/features/Profile/presentation/bloc/profile_state.dart';
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -57,9 +59,7 @@ class ProfilePage extends StatelessWidget {
                               ),
                             ),
                             child: ClipOval(
-                              
                               child: user.imageUrl != null && user.imageUrl!.isNotEmpty
-                              
                                   ? Image.network(
                                       user.imageUrl!,
                                       fit: BoxFit.cover,
@@ -70,7 +70,6 @@ class ProfilePage extends StatelessWidget {
                                         );
                                       },
                                       errorBuilder: (context, error, stackTrace) {
-                                       
                                         return Image.asset(
                                           'assets/images/user.png',
                                           fit: BoxFit.cover,
@@ -83,7 +82,27 @@ class ProfilePage extends StatelessWidget {
                                     ),
                             ),
                           ),
-                         
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                _showImagePickerDialog(context);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: ColorSys.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                child: const Icon(
+                                  Icons.edit, 
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -96,17 +115,38 @@ class ProfilePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    itemProfile('Name', user.username, Icons.person),
+                    _buildEditableProfileItem(
+                      context, 
+                      'Name', 
+                      user.username, 
+                      Icons.person,
+                      (newValue) {
+                        // Implement name update logic
+                        _updateUserField(context, 'username', newValue);
+                      }
+                    ),
                     const SizedBox(height: 10),
-                    itemProfile('Email', user.email, Icons.email),
+                    _buildNonEditableProfileItem(
+                      'Email', 
+                      user.email, 
+                      Icons.email
+                    ),
                     const SizedBox(height: 10),
-                    itemProfile('Phone Number', user.phone, Icons.call),
+                    _buildEditableProfileItem(
+                      context, 
+                      'Phone Number', 
+                      user.phoneNumber, 
+                      Icons.call,
+                      (newValue) {
+                        // Implement phone number update logic
+                        _updateUserField(context, 'phoneNumber', newValue);
+                      }
+                    ),
                     const SizedBox(height: 20),
                     Center(
                       child: ElevatedButton(
                         onPressed: () {
-                          FirebaseAuth.instance.signOut();
-                          Navigator.pushReplacementNamed(context, '/login');
+                            _showLogoutConfirmationDialog(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: ColorSys.secoundry,
@@ -126,8 +166,34 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout Confirmation'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget itemProfile(String title, String subtitle, IconData iconData) {
+  Widget _buildNonEditableProfileItem(
+    String title, 
+    String subtitle, 
+    IconData iconData
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -151,9 +217,160 @@ class ProfilePage extends StatelessWidget {
           subtitle,
           style: const TextStyle(color: Colors.grey),
         ),
-        trailing: const Icon(Icons.edit, color: Colors.grey),
       ),
     );
   }
 
+  Widget _buildEditableProfileItem(
+    BuildContext context, 
+    String title, 
+    String subtitle, 
+    IconData iconData,
+    Function(String) onUpdateField
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0, 5),
+            color: ColorSys.secoundry,
+            spreadRadius: 2,
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: Icon(iconData, color: ColorSys.primary),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: const TextStyle(color: Colors.grey),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.edit, color: Colors.grey),
+          onPressed: () {
+            _showEditDialog(context, title, subtitle, onUpdateField);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showEditDialog(
+    BuildContext context, 
+    String title, 
+    String currentValue,
+    Function(String) onUpdateField
+  ) {
+    final TextEditingController controller = TextEditingController(text: currentValue);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit $title'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: 'Enter new $title',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  onUpdateField(controller.text);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showImagePickerDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Change Profile Picture'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take a Photo'),
+                 onTap: () {
+                  _pickAndUploadImage(context,ImageSource.camera);
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  _pickAndUploadImage(context,ImageSource.gallery);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _updateUserField(BuildContext context, String field, String newValue) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      // Update Firestore document
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({field: newValue});
+
+      // Refresh the profile
+      context.read<ProfileBloc>().add(LoadProfile(user.uid));
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$field updated successfully')),
+      );
+    } catch (e) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update $field: $e')),
+      );
+    }
+  }
+    Future<void> _pickAndUploadImage(BuildContext context, ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+    if (pickedFile == null) return;
+    
+    final cloudinary = CloudinaryPublic('dwhmt3yt2', 'profileImg', cache: false);
+    final response = await cloudinary.uploadFile(CloudinaryFile.fromFile(pickedFile.path));
+    
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'imageUrl': response.secureUrl});
+      context.read<ProfileBloc>().add(LoadProfile(user.uid));
+    }
+  }
 }

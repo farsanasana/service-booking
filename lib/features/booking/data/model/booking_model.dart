@@ -10,7 +10,7 @@ class Booking {
   final double totalAmount;
   final String bookingStatus;
   final int hours;
-  final String professionals;
+  final int professionals;
   final bool needMaterials;
   final String instructions;
   final DateTime bookingDate;
@@ -120,7 +120,7 @@ class Booking {
     String? serviceName,
     double? totalAmount,
     int? hours,
-    String? professionals,
+    int? professionals,
     bool? needMaterials,
     String? instructions,
     DateTime? bookingDate,

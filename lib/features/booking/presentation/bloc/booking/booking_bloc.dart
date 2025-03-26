@@ -212,7 +212,7 @@ void _onCreateBookingAfterPayment(
       latitude: _lastLatitude ?? 0.0,  // Default to 0.0 to avoid errors
       longitude: _lastLongitude ?? 0.0,
       paymentStatus: 'completed',
-       bookingStatus: _tempBookingData['bookingStatus'],
+       bookingStatus: _tempBookingData['bookingStatus']??'pending',
     );
 
     // Call repository method to create booking in Firebase

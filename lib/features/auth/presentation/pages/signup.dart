@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:secondproject/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:secondproject/features/auth/presentation/bloc/auth/auth_state.dart';
 import 'package:secondproject/features/auth/presentation/bloc/profile/profile_bloc.dart';
-import 'package:secondproject/features/auth/presentation/widget/signupform.dart';
+import 'package:secondproject/features/auth/presentation/widget/signup_form.dart';
 
 // lib/features/auth/presentation/pages/signup_page.dart
 class SignupPage extends StatelessWidget {

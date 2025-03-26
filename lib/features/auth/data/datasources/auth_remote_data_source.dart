@@ -1,4 +1,3 @@
-// lib/features/auth/data/datasources/auth_remote_data_source.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:secondproject/core/errors/exceptions.dart';
@@ -6,7 +5,7 @@ import 'package:secondproject/features/auth/data/model/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<void> signupUser(UserModel user);
-  Future<void> loginWithEmailAndPassword(String email, String password);
+  Future<User?> loginWithEmailAndPassword(String email, String password);
   Future<void> logoutUser();
 }
 
@@ -23,8 +22,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: user.email,
         password: user.password,
       );
-        final userData = user.toJson();
-    print("🔥 Writing to Firestore: $userData"); 
+
+      final userData = user.toJson();
+      print("🔥 Writing to Firestore: $userData");
+
       await firestore.collection('users').doc(userCredential.user!.uid).set(userData);
     } on FirebaseAuthException catch (e) {
       throw ServerException(e.message ?? 'Signup failed');
@@ -41,11 +42,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
       return userCredential.user;
-    } catch (e) {
-      throw Exception("Login failed: ${e.toString()}");
+    } on FirebaseAuthException catch (e) {
+      throw ServerException("Login failed: ${e.message}");
     }
   }
-
 
   @override
   Future<void> logoutUser() async {

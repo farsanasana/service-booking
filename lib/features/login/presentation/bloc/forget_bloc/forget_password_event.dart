@@ -1,15 +1,15 @@
-import 'package:equatable/equatable.dart';
+// import 'package:equatable/equatable.dart';
 
-abstract class ForgotPasswordEvent extends Equatable {
-  @override
-  List<Object?> get props => [];
-}
+// abstract class ForgotPasswordEvent extends Equatable {
+//   @override
+//   List<Object?> get props => [];
+// }
 
-class SendPasswordResetEmail extends ForgotPasswordEvent {
-  final String email;
+// class SendPasswordResetEmail extends ForgotPasswordEvent {
+//   final String email;
 
-  SendPasswordResetEmail(this.email);
+//   SendPasswordResetEmail(this.email);
 
-  @override
-  List<Object?> get props => [email];
-}
+//   @override
+//   List<Object?> get props => [email];
+// }

@@ -1,18 +1,35 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:secondproject/features/login/data/datasources/log_remote_data_source.dart';
-import 'package:secondproject/features/login/domain/entities/user.dart';
+import 'package:secondproject/features/login/domain/repositories/user_respository.dart';
 
 class LoginUseCase {
-  final AuthenticationRepository authenticationRepository;
+  final LogRepository repository;
 
-  LoginUseCase(this.authenticationRepository);
+  LoginUseCase(this.repository);
 
-  Future<User?> execute(String email, String password) async {
+  Future<User?> execute(String email, String password) {
     if (email.isEmpty || password.isEmpty) {
       throw Exception('Email and password cannot be empty');
     }
+    return repository.loginWithEmailAndPassword(email, password);
+  }
+}
 
-    // Ensure this method returns a valid user object
-    return await authenticationRepository.loginWithEmailAndPassword(email, password);
+class ResetPasswordUseCase {
+  final LogRepository repository;
+
+  ResetPasswordUseCase(this.repository);
+
+  Future<void> execute(String email) {
+    return repository.sendPasswordResetLink(email);
+  }
+}
+
+class GoogleSignInUseCase {
+  final LogRepository repository;
+
+  GoogleSignInUseCase(this.repository);
+
+  Future<User?> execute() {
+    return repository.signInWithGoogle();
   }
 }

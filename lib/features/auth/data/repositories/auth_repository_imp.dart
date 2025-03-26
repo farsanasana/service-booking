@@ -1,4 +1,3 @@
-// lib/features/auth/data/repositories/auth_repository_impl.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:secondproject/core/network/network_info.dart';
 import 'package:secondproject/features/auth/data/datasources/auth_remote_data_source.dart';
@@ -8,12 +7,10 @@ import 'package:secondproject/features/auth/domain/repositories/signup_repositor
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
-
   final FirebaseAuth firebaseAuth;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
-
     required this.firebaseAuth,
   });
 

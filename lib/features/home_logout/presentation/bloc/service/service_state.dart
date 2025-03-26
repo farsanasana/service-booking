@@ -47,6 +47,12 @@ class ServicesCategoriesLoaded extends ServicesState {
     required this.categories,
   });
 }
+class ServiceSearchState extends ServicesState {
+  final List<Service> filteredServices;
+  final String searchQuery;
+  
+  ServiceSearchState(this.filteredServices, this.searchQuery);
+}
 
 class ServicesError extends ServicesState {
   final String message;

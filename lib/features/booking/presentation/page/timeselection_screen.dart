@@ -44,6 +44,8 @@ class _TimeSelectionScreenState extends State<TimeSelectionScreen> {
   }
 
 void _onNextPressed() {
+    print('tempBookingId: ${widget.tempBookingId}');
+  print('tempBookingId type: ${widget.tempBookingId.runtimeType}');
   if (widget.tempBookingId.trim().isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

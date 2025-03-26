@@ -11,8 +11,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(ProfileLoading());
       try {
         final userProfile = await getUserProfile(event.userId);
+        print('✅ User Profile Loaded: ${userProfile.username}');
         emit(ProfileLoaded(userProfile));
       } catch (e) {
+        print('❌ Profile Load Error: $e');
         emit(ProfileError(e.toString()));
       }
     });

@@ -11,6 +11,8 @@ import 'package:secondproject/features/auth/domain/usercase/signup_user.dart';
 import 'package:secondproject/features/auth/domain/usercase/uplod_image.dart';
 import 'package:secondproject/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:secondproject/features/auth/presentation/bloc/profile/profile_bloc.dart';
+import 'package:secondproject/features/login/domain/usecase/login_usecase.dart';
+import 'package:secondproject/features/login/presentation/bloc/login_bloc/login_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -18,31 +20,36 @@ Future<void> init() async {
   // External Dependencies
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
-  sl.registerLazySingleton(() => InternetConnectionChecker); // Fixed the trailing period
+  sl.registerLazySingleton(() => InternetConnectionChecker); // Fixed instantiation
 
   // Core
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl())); // Ensure correct NetworkInfo implementation
-
-  // Use Cases
-  sl.registerLazySingleton(() => SignupUser(sl()));
-  sl.registerLazySingleton(() => UploadImage(sl()));
+  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   // Repositories
   sl.registerLazySingleton(() => AuthRepositoryImpl(
-      remoteDataSource: sl(), 
-
-      firebaseAuth: sl()
-  ));
+        remoteDataSource: sl(),
+        firebaseAuth: sl(),
+      ));
   sl.registerLazySingleton(() => ProfileImageRepositoryImpl(dataSource: sl()));
 
   // Data Sources
   sl.registerLazySingleton(() => AuthRemoteDataSourceImpl(
-      firebaseAuth: sl(), 
-      firestore: sl()
-  ));
+        firebaseAuth: sl(),
+        firestore: sl(),
+      ));
   sl.registerLazySingleton(() => CloudinaryImageDataSourceImpl());
+
+  // Use Cases
+  sl.registerLazySingleton(() => SignupUser(sl()));
+  sl.registerLazySingleton(() => UploadImage(sl()));
+  sl.registerLazySingleton(() => LoginUseCase(sl())); // Added login
+  sl.registerLazySingleton(() => ResetPasswordUseCase(sl())); // Added reset password
 
   // BLoCs
   sl.registerFactory(() => AuthBloc(sl()));
   sl.registerFactory(() => ProfileImageBloc(sl()));
+  sl.registerFactory(() => LoginBloc(
+        loginUseCase: sl(),
+        resetPasswordUseCase: sl(), googleSignInUseCase: sl(),
+      )); // Added LoginBloc
 }

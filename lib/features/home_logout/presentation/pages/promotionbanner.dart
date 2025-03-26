@@ -6,14 +6,7 @@ import 'package:secondproject/features/home_logout/presentation/bloc/banner/bann
 import 'package:secondproject/features/home_logout/presentation/bloc/banner/banner_state.dart';
 import 'package:secondproject/features/home_logout/presentation/bloc/offer4/offerbanner_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
- // Import your BannerBloc
 
-// class PromotionBanner extends StatelessWidget {
-//   final List<String> bannerImages = [
-//     'assets/images/cleaning_banner.jpg',
-//     'assets/images/cleaning_banner2.jpg',
-   
-//   ];
 
 class PromotionBanner extends StatelessWidget {
   final List<String> bannerImages = [
