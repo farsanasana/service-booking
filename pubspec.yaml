@@ -72,6 +72,8 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   internet_connection_checker: ^3.0.1
   cloudinary_public: ^0.23.1
+  url_launcher: ^6.3.1
+  webview_flutter: ^4.10.0
   
 
 dev_dependencies:

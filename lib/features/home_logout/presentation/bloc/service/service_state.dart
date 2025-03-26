@@ -14,6 +14,8 @@ class ServicesAndCategoriesLoaded extends ServicesState {
   final List<Category> filteredCategories;
   final List<Service> filteredServices;
   final String searchQuery;
+   final bool promotionBannerAvailable;
+  final bool offerBannerAvailable;
 
   ServicesAndCategoriesLoaded({
     required this.categories,
@@ -21,6 +23,8 @@ class ServicesAndCategoriesLoaded extends ServicesState {
     this.filteredCategories = const [],
     this.filteredServices = const [],
     this.searchQuery = '',
+     this.promotionBannerAvailable = false,
+    this.offerBannerAvailable = false,
   });
 
   ServicesAndCategoriesLoaded copyWith({

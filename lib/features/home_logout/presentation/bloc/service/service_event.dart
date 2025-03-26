@@ -13,10 +13,7 @@ class LoadServicesByCategory extends ServicesEvent {
 class LoadAllServices extends ServicesEvent {}
 
 
-// class SearchQuery extends ServicesEvent {
-//   final String query;
-//   SearchQuery({required this.query});
-// }
+
 class SearchQuery extends ServicesEvent {
   final String query;
   final bool isCategory;

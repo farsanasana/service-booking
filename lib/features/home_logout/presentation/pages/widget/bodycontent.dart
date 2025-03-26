@@ -11,7 +11,7 @@ Widget buildBody(BuildContext context, NavigationState navigationState) {
     case NavigationTab.home:
       return buildHomeContent(context);
 
-    case NavigationTab.booking_details:
+    case NavigationTab.bookings:
     // Get the current user's ID dynamically
     final userId = FirebaseAuth.instance.currentUser?.uid;
     // If user is not logged in, show login page or a message
@@ -20,8 +20,7 @@ Widget buildBody(BuildContext context, NavigationState navigationState) {
       // Or navigate to login: return LoginPage();
     }
     return BookingDetailedScreen(userId: userId);
-    case NavigationTab.payments:
-      return Center(child: Text('Payments Page'));
+   
 
     case NavigationTab.profile:
       return ProfilePage();

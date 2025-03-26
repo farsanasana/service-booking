@@ -9,6 +9,9 @@ import 'package:secondproject/features/Profile/domain/usecases/get_user_profile.
 import 'package:secondproject/features/Profile/presentation/bloc/profile_bloc.dart';
 import 'package:secondproject/features/Profile/presentation/bloc/profile_event.dart';
 import 'package:secondproject/features/Profile/presentation/bloc/profile_state.dart';
+import 'package:secondproject/features/Profile/presentation/pages/widget/contact_screen.dart';
+import 'package:secondproject/features/Profile/presentation/pages/widget/privacy_screen.dart';
+import 'package:secondproject/features/Profile/presentation/pages/widget/terms_condition.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -143,19 +146,20 @@ class ProfilePage extends StatelessWidget {
                       }
                     ),
                     const SizedBox(height: 20),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                            _showLogoutConfirmationDialog(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorSys.secoundry,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 15),
-                        ),
-                        child: const Text('Logout'),
-                      ),
-                    ),
+                     _buildSettingsSection(context),
+                    // Center(
+                    //   child: ElevatedButton(
+                    //     onPressed: () {
+                    //         _showLogoutConfirmationDialog(context);
+                    //     },
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: ColorSys.secoundry,
+                    //       padding: const EdgeInsets.symmetric(
+                    //           horizontal: 30, vertical: 15),
+                    //     ),
+                    //     child: const Text('Logout'),
+                    //   ),
+                    // ),
                   ],
                 ),
               );
@@ -166,6 +170,51 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
+
+    Widget _buildSettingsSection(BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey, width: 1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.privacy_tip, color: Colors.black),
+            title: const Text('Privacy Policy'),
+            onTap: () { Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PrivacyPolicy()),
+              );},
+          ),
+          ListTile(
+            leading: const Icon(Icons.article, color: Colors.black),
+            title: const Text('Terms And Condition'),
+            onTap: () { Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const TermsConditionsScreen()),
+  );},
+          ),
+          ListTile(
+            leading: const Icon(Icons.support_agent, color: Colors.black),
+            title: const Text('Contact Support'),
+            onTap: () { Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const ContactSupportScreen()),
+  );},
+          ),
+          ListTile(
+            leading: const Icon(Icons.power_settings_new, color: Colors.red),
+            title: const Text('Log Out'),
+            onTap: () {
+              _showLogoutConfirmationDialog(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showLogoutConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,

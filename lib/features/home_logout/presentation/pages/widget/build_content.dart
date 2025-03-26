@@ -80,3 +80,14 @@ Widget buildHomeContent(BuildContext context) {
       },
     );
   }
+Widget _buildPlaceholder(String message) {
+  return Padding(
+    padding: const EdgeInsets.all(16),
+    child: Center(
+      child: Text(
+        message,
+        style: const TextStyle(color: Colors.grey, fontSize: 16),
+      ),
+    ),
+  );
+}
