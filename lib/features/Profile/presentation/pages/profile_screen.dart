@@ -62,9 +62,9 @@ class ProfilePage extends StatelessWidget {
                               ),
                             ),
                             child: ClipOval(
-                              child: user.imageUrl != null && user.imageUrl!.isNotEmpty
+                              child: user.imageUrl.isNotEmpty
                                   ? Image.network(
-                                      user.imageUrl!,
+                                      user.imageUrl,
                                       fit: BoxFit.cover,
                                       loadingBuilder: (context, child, loadingProgress) {
                                         if (loadingProgress == null) return child;
@@ -147,19 +147,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                      _buildSettingsSection(context),
-                    // Center(
-                    //   child: ElevatedButton(
-                    //     onPressed: () {
-                    //         _showLogoutConfirmationDialog(context);
-                    //     },
-                    //     style: ElevatedButton.styleFrom(
-                    //       backgroundColor: ColorSys.secoundry,
-                    //       padding: const EdgeInsets.symmetric(
-                    //           horizontal: 30, vertical: 15),
-                    //     ),
-                    //     child: const Text('Logout'),
-                    //   ),
-                    // ),
+               
                   ],
                 ),
               );

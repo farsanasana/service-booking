@@ -26,7 +26,7 @@ import 'package:secondproject/features/auth/presentation/pages/signup.dart';
 import 'package:secondproject/features/booking/data/model/booking_model.dart';
 import 'package:secondproject/features/booking/data/repository/repository_booking.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_bloc.dart';
-import 'package:secondproject/features/booking/presentation/page/bookingss/booking_detailed_screen.dart';
+import 'package:secondproject/features/booking/presentation/page/booking_details_page/booking_detailed_screen.dart';
 import 'package:secondproject/features/booking/presentation/page/paymentconfirmation_screen.dart';
 import 'package:secondproject/features/booking/presentation/page/timeselection_screen.dart';
 import 'package:secondproject/features/google/google_sign_in/google_sign_in_bloc.dart';

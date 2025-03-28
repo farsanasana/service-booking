@@ -8,6 +8,7 @@ class SignupRequested extends AuthEvent {
   final String username;
   final String phoneNumber;
   final String? imageUrl;
+    final DateTime ?createdAt; final String ?id;
 
   SignupRequested({
     required this.email,
@@ -15,6 +16,8 @@ class SignupRequested extends AuthEvent {
     required this.username,
     required this.phoneNumber,
     this.imageUrl,
+     this.createdAt, 
+       this.id,
   });
 }
 

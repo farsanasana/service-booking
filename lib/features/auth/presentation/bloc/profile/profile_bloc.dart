@@ -1,4 +1,3 @@
-// lib/features/auth/presentation/bloc/profile_image/profile_image_bloc.dart
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +6,6 @@ import 'package:secondproject/features/auth/domain/usercase/uplod_image.dart';
 import 'package:secondproject/features/auth/presentation/bloc/profile/profile_event.dart';
 import 'package:secondproject/features/auth/presentation/bloc/profile/profile_state.dart';
 
-// lib/features/auth/presentation/bloc/profile_image/profile_image_bloc.dart
 class ProfileImageBloc extends Bloc<ProfileImageEvent, ProfileImageState> {
   final UploadImage uploadImageUseCase;
   final ImagePicker _imagePicker = ImagePicker();

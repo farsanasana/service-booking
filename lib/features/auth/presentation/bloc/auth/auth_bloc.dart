@@ -28,7 +28,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         username: event.username,
         phoneNumber: event.phoneNumber,
         imageUrl: event.imageUrl,
-        password: event.password,
+        password: event.password, createdAt: null,
+      
       );
       await signupUser(user, event.password);
       emit(AuthSuccess());

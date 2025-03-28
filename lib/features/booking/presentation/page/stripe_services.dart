@@ -1,7 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:dio/dio.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:secondproject/core/constand/api.dart';
 
 class StripeServices {
@@ -28,7 +29,7 @@ class StripeServices {
         )
       );
 
-      await _processPayment(onSuccess, onFailure);
+      await _processPayment(amount, onSuccess, onFailure);
       
     } catch (e) {
       onFailure(e.toString()); // Call onFailure in case of any error
@@ -64,9 +65,13 @@ class StripeServices {
     }
   }
 
-  Future<void> _processPayment(Function onSuccess, Function(dynamic error) onFailure) async {
+  Future<void> _processPayment(int amount, Function onSuccess, Function(dynamic error) onFailure) async {
     try {
       await Stripe.instance.presentPaymentSheet();
+      
+      // ✅ Payment successful - store in Firestore
+      await _storeTransactionInFirestore(amount, "success");
+
       onSuccess(); // ✅ Call onSuccess after successful payment
 
     } on StripeException catch (e) {
@@ -76,4 +81,24 @@ class StripeServices {
       onFailure(e.toString()); // ✅ Call onFailure with error message
     }
   }
+
+  Future<void> _storeTransactionInFirestore(int amount, String status) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception("User not logged in");
+
+      await FirebaseFirestore.instance.collection("transactions").add({
+        "userId": user.uid,
+        "amount": amount / 100, // Convert cents to AED
+        "currency": "AED",
+         "paymentStatus": status, 
+        "timestamp": FieldValue.serverTimestamp(),
+      });
+
+      print("✅ Transaction stored successfully");
+    } catch (e) {
+      print("❌ Error storing transaction: $e");
+    }
+  }
 }
+

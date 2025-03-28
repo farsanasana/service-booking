@@ -2,18 +2,19 @@
 import 'package:secondproject/features/auth/domain/entities/user_entity.dart';
 
 class UserModel {
+  
   final String email;
   final String password;
   final String username;
   final String phoneNumber;
-  final String imageUrl;
+  final String ?imageUrl;
 
   UserModel({
     required this.email,
     required this.password,
     required this.username,
     required this.phoneNumber,
-    required this.imageUrl,
+     this.imageUrl,
   });
 
   // Convert UserModel to a Map for Firestore
@@ -23,7 +24,7 @@ class UserModel {
       'email': email,
       'username': username,
       'phoneNumber': phoneNumber,
-      'imageUrl': imageUrl,
+      'imageUrl': imageUrl??"",
     };
   }
 

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:secondproject/features/Profile/presentation/pages/profile_screen.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_bloc.dart';
 import 'package:secondproject/features/booking/presentation/bloc/booking/booking_state.dart';
-import 'package:secondproject/features/booking/presentation/page/bookingss/booking_detailed_screen.dart';
+import 'package:secondproject/features/booking/presentation/page/booking_details_page/booking_detailed_screen.dart';
 import 'package:secondproject/features/booking/presentation/page/bookingss/booking_section.dart';
 import 'package:secondproject/features/home_logout/domain/entities/category.dart';
 import 'package:secondproject/features/home_logout/domain/entities/service.dart';
